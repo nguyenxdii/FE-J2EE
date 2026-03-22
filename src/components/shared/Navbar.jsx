@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Car, Phone, Heart, User, LogOut, Menu, ShoppingCart, Wallet, Settings } from "lucide-react";
+import { Car, Phone, Heart, User, LogOut, Menu, ShoppingCart, Wallet, Settings, Bell } from "lucide-react";
 import { authService } from "@/services/authService";
 import {
   DropdownMenu,
@@ -76,8 +76,8 @@ export function Navbar() {
                 Thuê xe
               </Link>
               <Link
-                to="/deposits"
-                className="text-gray-600 hover:text-gray-900 font-medium"
+                to="/marketplace"
+                className="text-gray-600 hover:text-gray-900 font-medium whitespace-nowrap"
               >
                 Săn cọc giá rẻ
               </Link>
@@ -135,6 +135,12 @@ export function Navbar() {
                         <Link to="/wallet" className="cursor-pointer w-full flex items-center text-gray-700 py-2">
                           <Wallet className="mr-2 h-4 w-4" />
                           <span>Ví</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/notifications" className="cursor-pointer w-full flex items-center text-gray-700 py-2">
+                          <Bell className="mr-2 h-4 w-4" />
+                          <span>Thông báo</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
