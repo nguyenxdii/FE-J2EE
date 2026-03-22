@@ -1,37 +1,55 @@
-# Frontend - Car Booking
+# Frontend - ShopCar (Hệ thống đặt xe)
 
-Phần Frontend của dự án Car Booking được xây dựng bằng React và Vite.
+Phần Frontend của dự án ShopCar được xây dựng bằng React và Vite, tập trung vào trải nghiệm người dùng hiện đại và hiệu năng cao.
 
 ## 🚀 Hướng dẫn khởi chạy
 
-1. Cài đặt các thư viện phụ thuộc (nếu chưa làm):
+1. **Cài đặt các thư viện phụ thuộc**:
    ```bash
    npm install
    ```
-3. **Thiết lập Environment**:
+2. **Thiết lập Environment**:
    - Sao chép file `.env.example` thành `.env`:
      ```bash
      cp .env.example .env
      ```
-   - Mở file `.env` và đảm bảo `VITE_API_BASE_URL` trỏ đúng vào cổng của Backend (mặc định là `8080`).
+   - Đảm bảo `VITE_API_BASE_URL` trỏ đúng vào cổng của Backend (mặc định là `http://localhost:8080/api`).
 
-4. Chạy ứng dụng ở chế độ phát triển:
+3. **Chạy ứng dụng ở chế độ phát triển**:
    ```bash
    npm run dev
    ```
-5. Ứng dụng sẽ chạy tại: `http://localhost:5173`
+4. **Truy cập ứng dụng**:
+   - Trang chủ: `http://localhost:5173`
+   - Dashboard Admin: `http://localhost:5173/dashboard/admin`
 
 ## 🛠 Công nghệ sử dụng
 - **Framework**: React (Vite)
-- **Styling**: Tailwind CSS (v3)
-- **State Management**: Zustand
-- **Routing**: React Router Dom
+- **Styling**: Tailwind CSS & Lucide Icons
+- **UI Components**: Shadcn UI & Radix UI
+- **Routing**: React Router Dom v6
+- **Charts**: Recharts (Cho thống kê Admin)
 - **API Client**: Axios
-- **Icons**: React Icons
 
-## 📁 Cấu trúc thư mục
-- `src/components`: Các thành phần giao diện tái sử dụng.
-- `src/pages`: Các trang chính (Home, Login, v.v.).
-- `src/services`: Cấu hình Axios và các hàm gọi API.
-- `src/store`: Quản lý trạng thái (ví dụ: thông tin người dùng, số dư).
-- `src/utils`: Các hàm bổ trợ (format tiền, ngày tháng, v.v.).
+## 📁 Cấu trúc thư mục (src)
+```text
+src/
+├── assets/          # Hình ảnh, icon và các tài nguyên tĩnh
+├── components/      # Các component dùng chung
+│   ├── layout/      # MainLayout, AdminLayout
+│   ├── shared/      # HeroSection, VehicleCard, Navbar, Footer
+│   └── ui/          # Các component nguyên tử từ Shadcn (Button, Badge, etc.)
+├── pages/           # Các trang chính của ứng dụng
+│   ├── home/        # Trang chủ khách hàng
+│   └── admin/       # Trang quản trị (DashboardOverview, v.v.)
+├── services/        # Cấu hình API và các hàm gọi backend
+├── store/           # Quản lý trạng thái ứng dụng
+├── styles/          # Cấu hình CSS global và Tailwind
+└── utils/           # Các hàm bổ trợ (format tiền, ngày tháng)
+```
+
+## ✨ Tính năng nổi bật
+- Giao diện người dùng hiện đại, tương thích trên mọi thiết bị (Responsive).
+- Hệ thống lọc xe thông minh (hãng, giá, năm, nhiên liệu).
+- Trang quản trị (Admin Dashboard) với biểu đồ thống kê doanh thu trực quan.
+- Tích hợp dữ liệu thực từ Backend Java Spring Boot.
