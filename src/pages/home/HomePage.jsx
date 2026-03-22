@@ -121,11 +121,11 @@ export function HomePage() {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <HeroSection onSearch={handleSearch} availableMakes={availableMakes} />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
             <VehicleFilters
@@ -138,11 +138,11 @@ export function HomePage() {
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-4">
             {/* Search and Results Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div>
-                <h2>Xe đang có sẵn</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Xe đang có sẵn</h2>
                 <p className="text-gray-600">
                   Tìm thấy {filteredCars.length} xe
                 </p>
@@ -169,7 +169,7 @@ export function HomePage() {
             ) : (
               <>
                 {/* Cars Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
                   {filteredCars.map((car) => (
                     <VehicleCard
                       key={car.id}

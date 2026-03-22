@@ -36,8 +36,9 @@ export function VehicleCard({ car, onViewDetails }) {
         <h3 className="mb-2">
           {car.year} {car.make} {car.model}
         </h3>
-        <p className="text-2xl mb-3 text-blue-600 font-semibold">
-          {formatPrice(car.price)} / ngày
+        <p className="text-2xl mb-3 text-blue-600">
+          {formatPrice(car.price)}
+          <span className="text-sm text-gray-500 font-normal ml-1">/ ngày</span>
         </p>
         
         <div className="space-y-2 text-sm text-gray-600">

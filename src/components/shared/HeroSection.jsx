@@ -22,10 +22,10 @@ export function HeroSection({
 
       {/* Content */}
       <div className="relative z-10 text-center text-white max-w-4xl px-4">
-        <h1 className="text-4xl md:text-6xl mb-4 font-bold">
+        <h1 className="text-4xl md:text-6xl mb-4">
           Tìm Kiếm Chiếc Xe Hoàn Hảo
         </h1>
-        <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto opacity-90">
+        <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
           Khám phá hàng nghìn phương tiện chất lượng từ các đối tác tin cậy. Chiếc xe mơ ước chỉ cách bạn một cú nhấp chuột.
         </p>
 
