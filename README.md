@@ -24,6 +24,7 @@ Phần Frontend của dự án ShopCar được xây dựng bằng React và Vit
    - Dashboard Admin: `http://localhost:5173/dashboard/admin`
 
 ## 🛠 Công nghệ sử dụng
+
 - **Framework**: React (Vite)
 - **Styling**: Tailwind CSS & Lucide Icons
 - **UI Components**: Shadcn UI & Radix UI
@@ -32,6 +33,7 @@ Phần Frontend của dự án ShopCar được xây dựng bằng React và Vit
 - **API Client**: Axios
 
 ## 📁 Cấu trúc thư mục (src)
+
 ```text
 src/
 ├── assets/          # Hình ảnh, icon và các tài nguyên tĩnh
@@ -49,7 +51,10 @@ src/
 ```
 
 ## ✨ Tính năng nổi bật
+
 - Giao diện người dùng hiện đại, tương thích trên mọi thiết bị (Responsive).
 - Hệ thống lọc xe thông minh (hãng, giá, năm, nhiên liệu).
 - Trang quản trị (Admin Dashboard) với biểu đồ thống kê doanh thu trực quan.
 - Tích hợp dữ liệu thực từ Backend Java Spring Boot.
+
+demo rule
