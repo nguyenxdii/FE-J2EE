@@ -23,5 +23,33 @@ export const vehicleService = {
     const response = await fetch(`${BASE_URL}/vehicles/category/${categoryId}`);
     if (!response.ok) throw new Error('Failed to fetch vehicles by category');
     return response.json();
+  },
+
+  // GET /api/vehicles/search?keyword=...&categoryId=...&brand=...&minPrice=...&maxPrice=...&rentalDate=yyyy-MM-dd&sort=...
+  searchVehicles: async ({
+    keyword,
+    categoryId,
+    brand,
+    minPrice,
+    maxPrice,
+    rentalDate,
+    sort
+  } = {}) => {
+    const params = new URLSearchParams();
+
+    if (keyword && keyword.trim()) params.append('keyword', keyword.trim());
+    if (categoryId) params.append('categoryId', categoryId);
+    if (brand) params.append('brand', brand);
+    if (minPrice !== undefined && minPrice !== null) params.append('minPrice', minPrice);
+    if (maxPrice !== undefined && maxPrice !== null) params.append('maxPrice', maxPrice);
+    if (rentalDate) params.append('rentalDate', rentalDate);
+    if (sort) params.append('sort', sort);
+
+    const queryString = params.toString();
+    const response = await fetch(
+      `${BASE_URL}/vehicles/search${queryString ? `?${queryString}` : ''}`
+    );
+    if (!response.ok) throw new Error('Failed to search vehicles');
+    return response.json();
   }
 };
