@@ -22,6 +22,42 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { userService } from '../../services/userService';
+
+
+
+export default function Header() {
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    // Gọi API lấy số dư khi trang web load
+    const fetchBalance = async () => {
+      const data = await userService.getWalletBalance();
+      setBalance(data);
+    };
+    fetchBalance();
+  }, []); 
+
+return (
+    <header className="...">
+      {/* ... các menu khác ... */}
+      <div className="flex items-center gap-4">
+        {/* HIỂN THỊ SỐ DƯ Ở ĐÂY */}
+        <div className="hidden md:flex flex-col items-end px-3 py-1 bg-blue-50 rounded-lg border border-blue-100">
+          <span className="text-[10px] uppercase font-bold text-blue-400">Số dư ví</span>
+          <span className="text-sm font-bold text-blue-700">
+            {balance.toLocaleString()}đ
+          </span>
+        </div>
+        
+        {/* Avatar của Dino */}
+        <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+          K
+        </div>
+      </div>
+    </header>
+  );
+}
 
 export function Navbar() {
   const [user, setUser] = useState(authService.getCurrentUser());
