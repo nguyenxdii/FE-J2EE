@@ -13,6 +13,10 @@ import { MarketplacePage } from '@/pages/deposit/MarketplacePage';
 import { OrderHistoryPage } from '@/pages/order/OrderHistoryPage';
 import { NotificationPage } from '@/pages/notification/NotificationPage';
 import { Toaster } from 'sonner';
+import { VehicleSearchPage } from '@/pages/vehicles/VehicleSearchPage';
+import { VehicleDetailPage } from '@/pages/vehicles/VehicleDetailPage';
+import { CategoryManagementPage } from '@/pages/admin/CategoryManagementPage';
+import { VehicleManagementPage } from '@/pages/admin/VehicleManagementPage';
 
 function App() {
   return (
@@ -21,6 +25,8 @@ function App() {
       <Routes>
         {/* Client & Auth Routes */}
       <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
+        <Route path="/vehicles" element={<MainLayout><VehicleSearchPage /></MainLayout>} />
+        <Route path="/vehicles/:id" element={<MainLayout><VehicleDetailPage /></MainLayout>} />
         <Route path="/marketplace" element={<MainLayout><MarketplacePage /></MainLayout>} />
         <Route path="/wallet/callback" element={<MainLayout><WalletCallbackPage /></MainLayout>} />
         
@@ -38,6 +44,8 @@ function App() {
           <AdminLayout>
             <Routes>
               <Route index element={<DashboardOverview />} />
+              <Route path="categories" element={<CategoryManagementPage />} />
+              <Route path="vehicles" element={<VehicleManagementPage />} />
               <Route path="*" element={<DashboardOverview />} />
             </Routes>
           </AdminLayout>
