@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { HeroSection } from '@/components/shared/HeroSection';
 import { VehicleFilters } from '@/components/shared/VehicleFilters';
 import { VehicleCard } from '@/components/shared/VehicleCard';
@@ -9,6 +10,7 @@ import { Search, Loader2 } from 'lucide-react';
 import { vehicleService } from '@/services/vehicleService';
 
 export function HomePage() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCar, setSelectedCar] = useState(null);
   const [vehicles, setVehicles] = useState([]);
@@ -28,7 +30,7 @@ export function HomePage() {
       try {
         setLoading(true);
         const [vData, cData] = await Promise.all([
-          vehicleService.getVehicles(),
+          vehicleService.getFeaturedVehicles(),
           vehicleService.getCategories()
         ]);
         setVehicles(vData);
@@ -123,6 +125,23 @@ export function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <HeroSection onSearch={handleSearch} availableMakes={availableMakes} />
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 w-full">
+        <div className="rounded-3xl bg-gradient-to-r from-sky-600 to-indigo-700 text-white p-8">
+          <h2 className="text-2xl font-bold">Thuê xe nhanh trong 1 phút</h2>
+          <p className="text-white/90 mt-2">Chọn danh mục bên dưới để vào trang tìm kiếm đã lọc sẵn.</p>
+          <div className="flex flex-wrap gap-3 mt-4">
+            {categories.map((cat) => (
+              <Button
+                key={cat.id}
+                variant="secondary"
+                onClick={() => navigate(`/vehicles?categoryId=${cat.id}`)}
+              >
+                {cat.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
       
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -174,7 +193,7 @@ export function HomePage() {
                     <VehicleCard
                       key={car.id}
                       car={car}
-                      onViewDetails={setSelectedCar}
+                      onViewDetails={(car) => navigate(`/vehicles/${car.id}`)}
                     />
                   ))}
                 </div>
@@ -197,11 +216,7 @@ export function HomePage() {
       </div>
 
       {/* Car Details Modal */}
-      <VehicleDetailModal
-        car={selectedCar}
-        isOpen={!!selectedCar}
-        onClose={() => setSelectedCar(null)}
-      />
+      <VehicleDetailModal car={selectedCar} isOpen={false} onClose={() => setSelectedCar(null)} />
     </div>
   );
 }
