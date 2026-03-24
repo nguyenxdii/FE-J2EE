@@ -15,6 +15,8 @@ import { NotificationPage } from '@/pages/notification/NotificationPage';
 import { Toaster } from 'sonner';
 import { VehicleSearchPage } from '@/pages/vehicles/VehicleSearchPage';
 import { VehicleDetailPage } from '@/pages/vehicles/VehicleDetailPage';
+import { CategoryManagementPage } from '@/pages/admin/CategoryManagementPage';
+import { VehicleManagementPage } from '@/pages/admin/VehicleManagementPage';
 
 function App() {
   return (
@@ -42,6 +44,8 @@ function App() {
           <AdminLayout>
             <Routes>
               <Route index element={<DashboardOverview />} />
+              <Route path="categories" element={<CategoryManagementPage />} />
+              <Route path="vehicles" element={<VehicleManagementPage />} />
               <Route path="*" element={<DashboardOverview />} />
             </Routes>
           </AdminLayout>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { orderService } from '@/services/orderService';
 import { depositService } from '@/services/depositService';
+import { reviewService } from '@/services/reviewService';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +30,7 @@ import { toast } from 'sonner';
 import dayjs from 'dayjs';
 
 export function OrderHistoryPage() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,6 +40,10 @@ export function OrderHistoryPage() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [sellingPrice, setSellingPrice] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewOrder, setReviewOrder] = useState(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -132,6 +139,30 @@ export function OrderHistoryPage() {
     }
   };
 
+  const handleOpenReview = (order) => {
+    setReviewOrder(order);
+    setRating(5);
+    setComment('');
+    setReviewModalOpen(true);
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewOrder) return;
+    try {
+      await reviewService.create({
+        orderId: reviewOrder.id,
+        vehicleId: reviewOrder.vehicleId,
+        rating,
+        comment,
+      });
+      toast.success('Đánh giá thành công');
+      setReviewModalOpen(false);
+      fetchData();
+    } catch (e) {
+      toast.error(e.message);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -207,6 +238,11 @@ export function OrderHistoryPage() {
 
                       {/* Nút hành động (Đăng bán / Hủy bài) */}
                       <div className="pt-4 flex flex-wrap gap-4">
+                        {order.status === 'COMPLETED' && !order.reviewed && (
+                          <Button variant="outline" onClick={() => handleOpenReview(order)}>
+                            Viết đánh giá
+                          </Button>
+                        )}
                         {activeListing ? (
                           <div className="flex items-center gap-4 w-full md:w-auto">
                             <div className="bg-amber-50 text-amber-700 border border-amber-100 px-4 py-2 rounded-xl text-sm font-bold flex items-center">
@@ -297,6 +333,19 @@ export function OrderHistoryPage() {
               )}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={reviewModalOpen} onOpenChange={setReviewModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Đánh giá sau thuê</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input type="number" min={1} max={5} value={rating} onChange={(e) => setRating(Number(e.target.value))} />
+            <Input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Nhận xét của bạn" />
+            <Button onClick={handleSubmitReview}>Gửi đánh giá</Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

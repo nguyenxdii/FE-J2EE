@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { VehicleCard } from '@/components/shared/VehicleCard';
 
 export function VehicleSearchPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
@@ -78,11 +79,18 @@ export function VehicleSearchPage() {
 
         if (cancelled) return;
         setCategories(cRes);
+        const categoryFromQuery = searchParams.get('categoryId');
+        if (categoryFromQuery) {
+          setCategoryId(categoryFromQuery);
+        }
 
         const uniqueBrands = Array.from(new Set(vRes.map((v) => v.brand))).sort();
         setBrands(uniqueBrands);
 
-        const initialRes = await vehicleService.searchVehicles({ sort: 'ratingDesc' });
+        const initialRes = await vehicleService.searchVehicles({
+          sort: 'ratingDesc',
+          categoryId: categoryFromQuery || undefined,
+        });
         if (cancelled) return;
         setVehicles(initialRes);
       } catch (e) {
@@ -96,7 +104,7 @@ export function VehicleSearchPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [searchParams]);
 
   const handleViewDetails = (car) => {
     navigate(`/vehicles/${car.id}`);

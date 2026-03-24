@@ -13,9 +13,21 @@ export const vehicleService = {
     return response.json();
   },
 
+  getFeaturedVehicles: async () => {
+    const response = await fetch(`${BASE_URL}/vehicles/featured`);
+    if (!response.ok) throw new Error('Failed to fetch featured vehicles');
+    return response.json();
+  },
+
   getVehicleById: async (id) => {
     const response = await fetch(`${BASE_URL}/vehicles/${id}`);
     if (!response.ok) throw new Error('Failed to fetch vehicle details');
+    return response.json();
+  },
+
+  getVehicleAvailabilityByMonth: async (id, month) => {
+    const response = await fetch(`${BASE_URL}/vehicles/${id}/availability?month=${month}`);
+    if (!response.ok) throw new Error('Failed to fetch availability');
     return response.json();
   },
 
