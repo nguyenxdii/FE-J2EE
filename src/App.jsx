@@ -24,47 +24,66 @@ import { BookingPage } from '@/pages/order/BookingPage';
 import { OrderConfirmationPage } from '@/pages/order/OrderConfirmationPage';
 import { OrderDetailPage } from '@/pages/order/OrderDetailPage';
 
+// Admin & KYC Management Imports
+import Settings from '@/pages/settings/Settings'; 
+import UploadKYC from '@/pages/kyc/UploadKYC';
+import { UserManagement } from '@/pages/admin/UserManagement';
+import { KYCApproval } from '@/pages/admin/KYCApproval';
+import { PostManagement } from '@/pages/admin/PostManagement';
+import { TransactionMonitor } from '@/pages/admin/TransactionMonitor';
+
 function App() {
   return (
     <>
       <Toaster position="top-center" richColors />
+      
       <Routes>
-        {/* Client & Auth Routes */}
-      <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
+        {/* --- Public Routes --- */}
+        <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
         <Route path="/vehicles" element={<MainLayout><VehicleSearchPage /></MainLayout>} />
         <Route path="/vehicles/:id" element={<MainLayout><VehicleDetailPage /></MainLayout>} />
         <Route path="/marketplace" element={<MainLayout><MarketplacePage /></MainLayout>} />
         <Route path="/wallet/callback" element={<MainLayout><WalletCallbackPage /></MainLayout>} />
         
-        {/* Booking & Order Routes */}
-        <Route path="/booking/:vehicleId" element={<ProtectedRoute><MainLayout><BookingPage /></MainLayout></ProtectedRoute>} />
-        <Route path="/order/confirm" element={<ProtectedRoute><MainLayout><OrderConfirmationPage /></MainLayout></ProtectedRoute>} />
-        <Route path="/order/detail/:orderId" element={<ProtectedRoute><MainLayout><OrderDetailPage /></MainLayout></ProtectedRoute>} />
-        
+        {/* --- Auth Routes (Guest only) --- */}
         <Route path="/login" element={<GuestRoute><MainLayout><LoginPage /></MainLayout></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><MainLayout><RegisterPage /></MainLayout></GuestRoute>} />
         <Route path="/forgot-password" element={<GuestRoute><MainLayout><ForgotPasswordPage /></MainLayout></GuestRoute>} />
         <Route path="/reset-password" element={<GuestRoute><MainLayout><ResetPasswordPage /></MainLayout></GuestRoute>} />
 
-        {/* Protected Client Routes */}
+        {/* --- Protected Client Routes (Phải đăng nhập mới vào được) --- */}
         <Route path="/profile" element={<ProtectedRoute><MainLayout><ProfilePage /></MainLayout></ProtectedRoute>} />
         <Route path="/wallet" element={<ProtectedRoute><MainLayout><WalletPage /></MainLayout></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><MainLayout><OrderHistoryPage /></MainLayout></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><MainLayout><NotificationPage /></MainLayout></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><MainLayout><Settings /></MainLayout></ProtectedRoute>} />
+        <Route path="/kyc" element={<ProtectedRoute><MainLayout><UploadKYC /></MainLayout></ProtectedRoute>} />
+        
+        {/* Booking & Order Routes */}
+        <Route path="/booking/:vehicleId" element={<ProtectedRoute><MainLayout><BookingPage /></MainLayout></ProtectedRoute>} />
+        <Route path="/order/confirm" element={<ProtectedRoute><MainLayout><OrderConfirmationPage /></MainLayout></ProtectedRoute>} />
+        <Route path="/order/detail/:orderId" element={<ProtectedRoute><MainLayout><OrderDetailPage /></MainLayout></ProtectedRoute>} />
 
-      {/* Admin Routes */}
-      <Route path="/dashboard/admin/*" element={
-        <ProtectedRoute allowRoles={['ADMIN']}>
-          <AdminLayout>
-            <Routes>
-              <Route index element={<DashboardOverview />} />
-              <Route path="categories" element={<CategoryManagementPage />} />
-              <Route path="vehicles" element={<VehicleManagementPage />} />
-              <Route path="*" element={<DashboardOverview />} />
-            </Routes>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
+        {/* --- Admin Routes --- */}
+        <Route path="/dashboard/admin/*" element={
+          <ProtectedRoute allowRoles={['ADMIN']}>
+            <AdminLayout>
+              <Routes>
+                <Route index element={<DashboardOverview />} />
+                <Route path="users" element={<UserManagement />} />
+                <Route path="kyc" element={<KYCApproval />} />
+                <Route path="posts" element={<PostManagement />} />
+                <Route path="transactions" element={<TransactionMonitor />} />
+                <Route path="categories" element={<CategoryManagementPage />} />
+                <Route path="vehicles" element={<VehicleManagementPage />} />
+                <Route path="*" element={<DashboardOverview />} />
+              </Routes>
+            </AdminLayout>
+          </ProtectedRoute>
+        } />
+        
+        {/* Trang 404 */}
+        <Route path="*" element={<MainLayout><div>Trang không tồn tại</div></MainLayout>} />
       </Routes>
     </>
   );

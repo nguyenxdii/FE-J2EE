@@ -90,4 +90,54 @@ export const adminService = {
     if (!res.ok) throw new Error(data.message || 'Delete vehicle failed');
     return data;
   },
+
+  // --- QUẢN LÝ NGƯỜI DÙNG ---
+  getUsers: async (params = {}) => {
+    const q = new URLSearchParams(params);
+    const res = await fetch(`${BASE_URL}/admin/users?${q.toString()}`, { headers: authHeader() });
+    if (!res.ok) throw new Error('Load users failed');
+    return res.json();
+  },
+
+  toggleUserLock: async (userId) => {
+    const res = await fetch(`${BASE_URL}/admin/users/${userId}/toggle-lock`, { method: 'PATCH', headers: authHeader() });
+    if (!res.ok) throw new Error('Toggle user lock failed');
+    return res.json();
+  },
+
+  // --- DUYỆT KYC (CCCD / GPLX) ---
+  getPendingKYC: async () => {
+    const res = await fetch(`${BASE_URL}/admin/kyc/pending`, { headers: authHeader() });
+    if (!res.ok) throw new Error('Load pending KYC failed');
+    return res.json();
+  },
+
+  approveKYC: async (kycId) => {
+    const res = await fetch(`${BASE_URL}/admin/kyc/${kycId}/approve`, { method: 'POST', headers: authHeader() });
+    if (!res.ok) throw new Error('Approve KYC failed');
+    return res.json();
+  },
+
+  rejectKYC: async (kycId, reason) => {
+    const res = await fetch(`${BASE_URL}/admin/kyc/${kycId}/reject`, { 
+      method: 'POST', 
+      headers: { ...authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason })
+    });
+    if (!res.ok) throw new Error('Reject KYC failed');
+    return res.json();
+  },
+
+  // --- QUẢN LÝ BÀI ĐĂNG & GIAO DỊCH ---
+  getAllPosts: async () => {
+    const res = await fetch(`${BASE_URL}/admin/deposits`, { headers: authHeader() });
+    if (!res.ok) throw new Error('Load posts failed');
+    return res.json();
+  },
+
+  getTransactionMonitor: async () => {
+    const res = await fetch(`${BASE_URL}/admin/transactions/monitor`, { headers: authHeader() });
+    if (!res.ok) throw new Error('Load transaction history failed');
+    return res.json();
+  },
 };

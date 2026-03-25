@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Car, Phone, Heart, User, LogOut, Menu, ShoppingCart, Wallet, Settings, Bell } from "lucide-react";
+import { Car, Phone, Heart, User, LogOut, Menu, ShoppingCart, Wallet, Settings, Bell, ShieldCheck, LayoutDashboard } from "lucide-react";
 import { authService } from "@/services/authService";
 import {
   DropdownMenu,
@@ -23,6 +23,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { userService } from '@/services/userService';
+
+
+
+
 
 export function Navbar() {
   const [user, setUser] = useState(authService.getCurrentUser());
@@ -30,8 +35,13 @@ export function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [balance, setBalance] = useState(0);
+
   useEffect(() => {
     setUser(authService.getCurrentUser());
+    if (authService.isAuthenticated()) {
+      userService.getWalletBalance().then(setBalance);
+    }
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -105,6 +115,15 @@ export function Navbar() {
                 )}
               </button>
 
+              {user && (
+                <div className="hidden lg:flex flex-col items-end px-3 py-1 bg-blue-50 rounded-lg border border-blue-100 mr-1">
+                  <span className="text-[10px] uppercase font-bold text-blue-400">Số dư ví</span>
+                  <span className="text-sm font-bold text-blue-700">
+                    {balance.toLocaleString()}đ
+                  </span>
+                </div>
+              )}
+
               {user ? (
                 <div className="pl-2 border-l border-gray-200 ml-2">
                   <DropdownMenu>
@@ -122,7 +141,10 @@ export function Navbar() {
                       <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col space-y-2">
                           <p className="text-sm font-medium leading-none text-gray-900">{user.fullName}</p>
-                          <p className="text-xs leading-none text-gray-500 font-semibold uppercase tracking-wider">{user.role}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs leading-none text-gray-500 font-semibold uppercase tracking-wider">{user.role}</p>
+                            {user.kycStatus === 'VERIFIED' && <ShieldCheck className="h-3 w-3 text-emerald-500" />}
+                          </div>
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
@@ -132,6 +154,20 @@ export function Navbar() {
                           <span>Hồ sơ cá nhân</span>
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/kyc" className="cursor-pointer w-full flex items-center text-gray-700 py-2">
+                          <ShieldCheck className="mr-2 h-4 w-4" />
+                          <span>Xác minh danh tính</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      {user.role === 'ADMIN' && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/dashboard/admin" className="cursor-pointer w-full flex items-center text-blue-600 font-bold py-2">
+                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                            <span>Quản trị hệ thống</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem asChild>
                         <Link to="/orders" className="cursor-pointer w-full flex items-center text-gray-700 py-2">
                           <ShoppingCart className="mr-2 h-4 w-4" />
