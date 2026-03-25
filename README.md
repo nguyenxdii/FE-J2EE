@@ -1,60 +1,66 @@
-# Frontend - ShopCar (Hệ thống đặt xe)
+# ShopCar Frontend - Giao diện Web Đặt xe
 
-Phần Frontend của dự án ShopCar được xây dựng bằng React và Vite, kết hợp với Tailwind CSS mang lại giao diện hiện đại, chuyên nghiệp cùng trải nghiệm người dùng tối ưu.
+Phần Frontend của dự án ShopCar được phát triển bằng React và Vite, kết hợp sức mạnh của Vanilla CSS và Tailwind CSS để mang lại trải nghiệm người dùng cao cấp và chuyên nghiệp.
 
-## 🚀 Hướng dẫn khởi chạy
+## Hướng dẫn khởi chạy
 
-1. **Cài đặt các thư viện phụ thuộc**:
+### Cài đặt và Thiết lập
+
+1. **Cài đặt thư viện**:
    ```bash
    npm install
    ```
-2. **Thiết lập Environment**:
+
+2. **Cấu hình môi trường**:
    - Sao chép file `.env.example` thành `.env`:
      ```bash
      cp .env.example .env
-     ```
-   - Đảm bảo `VITE_API_BASE_URL` trỏ đúng vào cổng của Backend (mặc định là `http://localhost:8080/api`).
+   ```
+   - Đảm bảo biến `VITE_API_BASE_URL` trỏ chính xác đến Backend API (mặc định: `http://localhost:8080/api`).
 
-3. **Chạy ứng dụng ở chế độ phát triển**:
+3. **Chế độ phát triển**:
    ```bash
    npm run dev
    ```
-4. **Truy cập ứng dụng**:
-   - Trang chủ: `http://localhost:5173`
-   - Dashboard Admin: `http://localhost:5173/dashboard/admin` (Yêu cầu đăng nhập tài khoản ADMIN)
 
-## 🛠 Công nghệ sử dụng
+4. **Truy cập ứng dụng**:
+   - Cổng thông tin khách hàng: `http://localhost:5173`
+   - Bảng điều khiển quản trị: `http://localhost:5173/dashboard/admin` (Yêu cầu tài khoản ADMIN)
+
+## Công nghệ sử dụng
 
 - **Framework**: React 18+ (Vite)
-- **Styling**: Tailwind CSS & Lucide Icons
-- **UI Components**: Radix UI (Avatar, Dropdown, AlertDialog) & Shadcn UI architecture
-- **Xác thực**: JWT (Lưu trữ an toàn trong LocalStorage)
-- **Routing**: React Router Dom v6 (Hỗ trợ Protected Routes)
-- **Thông báo**: Sonner (Toast notifications)
+- **Định dạng giao diện**: Vanilla CSS, Tailwind CSS, Lucide Icons
+- **Kiến trúc UI**: Các thành phần từ Radix UI & Shadcn UI
+- **Quản lý trạng thái & Định tuyến**: React Router Dom v6
+- **Thông báo**: Sonner (Thông báo dạng Toast)
+- **Xử lý thời gian**: Day.js
 
-## 📁 Cấu trúc thư mục (src)
+## Cấu trúc thư mục
 
 ```text
 src/
-├── assets/          # Tài nguyên tĩnh (Hình ảnh, Logo)
+├── assets/          # Tài nguyên tĩnh (hình ảnh, font, dữ liệu toàn cục)
 ├── components/      
-│   ├── layout/      # Layout chính (MainLayout) và Layout quản trị (AdminLayout)
-│   ├── shared/      # Các linh kiện tái sử dụng: Navbar, Footer, VehicleCard
-│   └── ui/          # Các UI cơ bản: Button, Input, DropdownMenu, Avatar, AlertDialog
+│   ├── layout/      # Các thành phần giao diện khung (MainLayout, AdminLayout)
+│   ├── shared/      # Các thành phần tái sử dụng (Navbar, Footer, VehicleCard)
+│   └── ui/          # Các thành phần UI cơ bản (Button, Input, DropdownMenu)
 ├── pages/           
-│   ├── home/        # Giao diện khách hàng (Tìm kiếm, danh sách xe)
-│   ├── auth/        # Trang Đăng nhập (LoginPage) và Đăng ký (RegisterPage)
-│   └── admin/       # Khu vực quản trị (Dashboard, Quản lý xe/đơn hàng)
-├── routes/          # Cấu hình định tuyến và ProtectedRoute
-├── services/        # Tương tác API (authService, vehicleService)
-├── styles/          # Tailwind config và Global CSS
-└── utils/           # Tiện ích bổ trợ (API client, formatters)
+│   ├── home/        # Trang chủ và danh sách xe cho khách hàng
+│   ├── auth/        # Các trang xác thực (Đăng nhập, Đăng ký, Quên mật khẩu)
+│   ├── vehicles/    # Tìm kiếm và chi tiết thông tin xe
+│   ├── order/       # Quy trình đặt xe và lịch sử đơn hàng
+│   └── admin/       # Các trang quản trị tập trung
+├── routes/          # Logic điều hướng và bảo vệ đường dẫn (Route Protection)
+├── services/        # Lớp giao tiếp API (Auth, Admin, Vehicle services)
+├── styles/          # Cấu hình giao diện và CSS toàn cục
+└── utils/           # Các hàm bổ trợ và định dạng dữ liệu
 ```
 
-## ✨ Tính năng nổi bật
+## Các tính năng cốt lõi
 
-- **Giao diện đẳng cấp**: Thiết kế Premium với hệ màu đen/trắng tinh tế, hiệu ứng chuyển động mượt mà.
-- **Tài khoản & Phân quyền**: Luồng đăng nhập/đăng ký hoàn chỉnh, Menu Avatar thông minh với tính năng đăng xuất an toàn.
-- **Bảo mật đường dẫn**: Sử dụng `ProtectedRoute` để ngăn chặn khách hàng truy cập trái phép vào trang quản trị.
-- **Tìm kiếm thông minh**: Bộ lọc xe đa dạng (Hãng, Giá, Năm, Hộp số, Nhiên liệu).
-- **Thông báo trực quan**: Hệ thống Toast thông báo trạng thái đăng nhập, lỗi hoặc thành công theo thời gian thực.
+- **Thiết kế cao cấp**: Giao diện hiện đại với bảng màu nhất quán và các hiệu ứng chuyển động vi mô tinh tế.
+- **Phân quyền người dùng**: Hệ thống ProtectedRoute giúp phân tách rõ ràng chức năng Khách hàng và Quản trị viên.
+- **Tìm kiếm nâng cao**: Bộ lọc xe thông minh dựa trên thương hiệu, danh mục, giá cả và thông số kỹ thuật.
+- **Quản lý đơn hàng**: Kiểm tra tình trạng sẵn sàng của xe theo thời gian thực và hiển thị lịch xe đã đặt.
+- **Giao diện đáp ứng (Responsive)**: Tối ưu hóa cho nhiều kích cỡ màn hình khác nhau, đảm bảo trải nghiệm liền mạch trên mọi thiết bị.

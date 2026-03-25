@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail, Lock, User, Phone, Loader2, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, Phone, Loader2, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { authService } from '@/services/authService';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
@@ -16,6 +16,8 @@ export function RegisterPage() {
     password: '',
     confirmPassword: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [step, setStep] = useState(1); // 1: Form, 2: OTP
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -59,8 +61,8 @@ export function RegisterPage() {
     try {
       const response = await authService.verifyOtp(formData, otp);
       if (response.success) {
-        toast.success("Đăng ký thành công!");
-        navigate('/');
+        toast.success("Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.");
+        navigate('/login');
       } else {
         toast.error(response.message || "Mã OTP không đúng");
       }
@@ -143,13 +145,20 @@ export function RegisterPage() {
                   <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
                   <Input 
                     id="password" 
-                    type="password" 
+                    type={showPassword ? "text" : "password"} 
                     placeholder="••••••••" 
-                    className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                    className="pl-11 pr-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
                     required 
                     value={formData.password}
                     onChange={handleChange}
                   />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
 
@@ -159,13 +168,20 @@ export function RegisterPage() {
                   <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
                   <Input 
                     id="confirmPassword" 
-                    type="password" 
+                    type={showConfirmPassword ? "text" : "password"} 
                     placeholder="••••••••" 
-                    className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                    className="pl-11 pr-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
                     required 
                     value={formData.confirmPassword}
                     onChange={handleChange}
                   />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
 

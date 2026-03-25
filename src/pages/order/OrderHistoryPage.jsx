@@ -233,7 +233,9 @@ export function OrderHistoryPage() {
                           <p className="text-sm text-gray-400">Mã đơn: <span className="text-gray-600 font-mono font-bold uppercase">{order.orderCode}</span></p>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs text-gray-400 font-bold uppercase">Tiền cọc</p>
+                          <p className="text-xs text-gray-400 font-bold uppercase">
+                            {order.isTransferred ? "Giá đã mua" : "Tiền cọc"}
+                          </p>
                           <p className="text-xl font-black text-blue-700">{formatCurrency(order.depositAmount)}</p>
                         </div>
                       </div>
@@ -354,15 +356,60 @@ export function OrderHistoryPage() {
       </Dialog>
 
       <Dialog open={reviewModalOpen} onOpenChange={setReviewModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Đánh giá sau thuê</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <Input type="number" min={1} max={5} value={rating} onChange={(e) => setRating(Number(e.target.value))} />
-            <Input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Nhận xét của bạn" />
-            <Button onClick={handleSubmitReview}>Gửi đánh giá</Button>
+        <DialogContent className="sm:max-w-md bg-white rounded-3xl border-none shadow-2xl p-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white text-center">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black">Đánh giá chuyến đi</DialogTitle>
+              <DialogDescription className="text-blue-100/80 mt-2">
+                Trải nghiệm của bạn với chiếc {reviewOrder?.vehicleName} thế nào?
+              </DialogDescription>
+            </DialogHeader>
           </div>
+          
+          <div className="p-8 space-y-6">
+            {/* Star Selector */}
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">Mức độ hài lòng</p>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setRating(s)}
+                    className="transition-transform active:scale-90"
+                  >
+                    <svg 
+                      className={`w-10 h-10 ${s <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-100'} transition-colors`}
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+              <p className="text-lg font-black text-gray-900 mt-1">
+                {rating === 5 ? "Tuyệt vời!" : rating === 4 ? "Rất tốt" : rating === 3 ? "Bình thường" : rating === 2 ? "Không hài lòng" : "Tệ"}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700 ml-1">Nhận xét của bạn</label>
+              <textarea 
+                className="w-full h-32 p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none resize-none transition-all placeholder:text-gray-300"
+                placeholder="Chia sẻ thêm về tình trạng xe, chủ xe hoặc trải nghiệm của bạn..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="p-8 pt-0 pb-10">
+            <Button 
+              className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-200 transition-all active:scale-95"
+              onClick={handleSubmitReview}
+            >
+              Gửi đánh giá ngay
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

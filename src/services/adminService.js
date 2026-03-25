@@ -56,26 +56,39 @@ export const adminService = {
   createVehicle: async (payload) => {
     const fd = new FormData();
     Object.entries(payload).forEach(([k, v]) => {
-      if (k === 'images') return;
+      if (k === 'images' || k === 'newImages' || k === 'removedImages' || k === 'specs') return;
       if (v !== undefined && v !== null && v !== '') fd.append(k, v);
     });
+    
+    // Đảm bảo gửi kèm các trường trong specs nếu có (phẳng hóa ra FormData)
+    if (payload.fuelType) fd.append('fuelType', payload.fuelType);
+    if (payload.transmission) fd.append('transmission', payload.transmission);
+
     (payload.images || []).forEach((f) => fd.append('images', f));
+    
     const res = await fetch(`${BASE_URL}/admin/vehicles`, { method: 'POST', headers: authHeader(), body: fd });
-    if (!res.ok) throw new Error('Create vehicle failed');
-    return res.json();
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Thêm xe thất bại');
+    return data;
   },
 
   updateVehicle: async (id, payload) => {
     const fd = new FormData();
     Object.entries(payload).forEach(([k, v]) => {
-      if (k === 'newImages' || k === 'removedImages') return;
+      if (k === 'newImages' || k === 'removedImages' || k === 'images' || k === 'specs') return;
       if (v !== undefined && v !== null && v !== '') fd.append(k, v);
     });
+    
+    if (payload.fuelType) fd.append('fuelType', payload.fuelType);
+    if (payload.transmission) fd.append('transmission', payload.transmission);
+
     (payload.removedImages || []).forEach((img) => fd.append('removedImages', img));
     (payload.newImages || []).forEach((f) => fd.append('newImages', f));
+    
     const res = await fetch(`${BASE_URL}/admin/vehicles/${id}`, { method: 'PUT', headers: authHeader(), body: fd });
-    if (!res.ok) throw new Error('Update vehicle failed');
-    return res.json();
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Cập nhật xe thất bại');
+    return data;
   },
 
   toggleVehicleVisibility: async (id) => {

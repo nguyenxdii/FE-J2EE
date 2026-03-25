@@ -178,12 +178,14 @@ export function BookingPage() {
               <div className="p-5 bg-amber-50 rounded-2xl border border-amber-100 space-y-3">
                 <div className="flex items-center gap-2 text-amber-800 font-bold text-sm">
                   <Clock className="w-4 h-4" />
-                  Lịch xe đã được đặt (Lưu ý tránh chọn trùng):
+                  Ngày đã có đơn (Vui lòng chọn né các ngày này):
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {bookedOrders.map((order, idx) => (
-                    <div key={idx} className="text-xs text-amber-700 bg-white/50 p-2 rounded-lg border border-amber-100">
-                      • {dayjs(order.startDate).format('DD/MM')} - {dayjs(order.endDate).format('DD/MM')} ({order.status === 'PENDING' ? 'Chờ TT' : 'Đã cọc'})
+                    <div key={idx} className="text-[11px] font-bold text-amber-700 bg-white/60 px-3 py-2 rounded-xl border border-amber-200/50 shadow-sm flex items-center justify-between">
+                      <span>{dayjs(order.startDate).format('DD/MM/YYYY')}</span>
+                      <span className="mx-1 opacity-50">-</span>
+                      <span>{dayjs(order.endDate).format('DD/MM/YYYY')}</span>
                     </div>
                   ))}
                 </div>

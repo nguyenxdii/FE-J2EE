@@ -28,9 +28,9 @@ export function NotificationPage() {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const res = await notificationService.getMyNotifications();
-      if (res.success) {
-        setNotifications(res.data);
+      const res = await notificationService.getNotifications();
+      if (res?.success) {
+        setNotifications(res.data?.notifications || []);
       }
     } catch (error) {
       toast.error('Không thể tải thông báo');
@@ -43,7 +43,7 @@ export function NotificationPage() {
     try {
       const res = await notificationService.markAsRead(id);
       if (res.success) {
-        setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+        setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
       }
     } catch (error) {
       console.error(error);
@@ -54,7 +54,7 @@ export function NotificationPage() {
     try {
       const res = await notificationService.markAllAsRead();
       if (res.success) {
-        setNotifications(notifications.map(n => ({ ...n, read: true })));
+        setNotifications(notifications.map(n => ({ ...n, isRead: true })));
         toast.success('Đã đánh dấu tất cả là đã đọc');
       }
     } catch (error) {
@@ -83,7 +83,7 @@ export function NotificationPage() {
           </div>
         </div>
         
-        {notifications.some(n => !n.read) && (
+        {notifications.some(n => !n.isRead) && (
           <Button 
             variant="ghost" 
             className="text-indigo-600 font-bold hover:bg-indigo-50"
@@ -110,17 +110,17 @@ export function NotificationPage() {
             <Card 
               key={notif.id} 
               className={`border-none transition-all cursor-pointer rounded-2xl shadow-sm ${
-                notif.read ? 'bg-white opacity-80' : 'bg-white ring-1 ring-indigo-100 shadow-md'
+                notif.isRead ? 'bg-white opacity-80' : 'bg-white ring-1 ring-indigo-100 shadow-md'
               } hover:shadow-lg`}
-              onClick={() => !notif.read && handleMarkAsRead(notif.id)}
+              onClick={() => !notif.isRead && handleMarkAsRead(notif.id)}
             >
               <CardContent className="p-6 flex gap-5">
-                <div className={`p-3 rounded-xl shrink-0 ${notif.read ? 'bg-gray-50' : 'bg-indigo-50'}`}>
+                <div className={`p-3 rounded-xl shrink-0 ${notif.isRead ? 'bg-gray-50' : 'bg-indigo-50'}`}>
                   {getNotificationIcon(notif.title)}
                 </div>
                 <div className="flex-1 space-y-1">
                   <div className="flex justify-between items-start">
-                    <h3 className={`font-bold transition-colors ${notif.read ? 'text-gray-600' : 'text-gray-900 group-hover:text-indigo-600'}`}>
+                    <h3 className={`font-bold transition-colors ${notif.isRead ? 'text-gray-600' : 'text-gray-900 group-hover:text-indigo-600'}`}>
                       {notif.title}
                     </h3>
                     <div className="flex items-center text-[10px] text-gray-400 font-medium uppercase tracking-tighter shrink-0 ml-4">
@@ -130,7 +130,7 @@ export function NotificationPage() {
                   </div>
                   <p className="text-sm text-gray-500 leading-relaxed italic">{notif.message}</p>
                 </div>
-                {!notif.read && (
+                {!notif.isRead && (
                   <div className="w-2 h-2 bg-indigo-600 rounded-full mt-2 self-start animate-pulse shadow-glow shadow-indigo-400"></div>
                 )}
               </CardContent>

@@ -49,15 +49,15 @@ export function HomePage() {
     return vehicles.map(v => ({
       id: v.id,
       make: v.brand,
-      model: v.model.replace(/\s\d{4}$/, ''),
+      model: v.model,
       year: v.year,
       price: v.pricePerDay,
-      mileage: 0, 
+      mileage: v.mileage || 0,
       fuelType: v.specs?.fuelType || 'Xăng',
       transmission: v.specs?.transmission || 'Tự động',
-      location: 'Hà Nội', 
+      location: v.location || 'Hà Nội',
       image: (v.images && v.images.length > 0) ? v.images[0] : 'https://placehold.co/600x400?text=No+Image',
-      condition: v.year >= 2023 ? 'Mới' : 'Đã sử dụng',
+      condition: v.year >= 2023 ? 'New' : 'Used',
       categoryId: v.categoryId, 
       description: v.description,
       originalData: v
@@ -93,11 +93,15 @@ export function HomePage() {
     });
   }, [searchTerm, filters, mappedVehicles]);
 
-  const handleSearch = (search, make) => {
-    setSearchTerm(search);
-    if (make !== 'all-makes') {
-      const actualMake = availableMakes.find(m => m.toLowerCase() === make.toLowerCase());
-      if (actualMake) setFilters(prev => ({ ...prev, make: actualMake }));
+  const handleSearch = (keyword, brand) => {
+    setSearchTerm(keyword);
+    if (brand === 'all') {
+      setFilters(prev => ({ ...prev, make: null }));
+    } else if (brand) {
+      const actualMake = availableMakes.find(m => m.toLowerCase() === brand.toLowerCase());
+      if (actualMake) {
+        setFilters(prev => ({ ...prev, make: actualMake }));
+      }
     }
   };
 

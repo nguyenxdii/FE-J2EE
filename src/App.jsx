@@ -1,8 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { HomePage } from '@/pages/home/HomePage';
-import { DashboardOverview } from '@/pages/admin/DashboardOverview';
+import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
@@ -15,22 +16,23 @@ import { NotificationPage } from '@/pages/notification/NotificationPage';
 import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage';
 import { ProfilePage } from '@/pages/profile/ProfilePage';
-import { Toaster } from 'sonner';
-import { VehicleSearchPage } from '@/pages/vehicles/VehicleSearchPage';
-import { VehicleDetailPage } from '@/pages/vehicles/VehicleDetailPage';
-import { CategoryManagementPage } from '@/pages/admin/CategoryManagementPage';
-import { VehicleManagementPage } from '@/pages/admin/VehicleManagementPage';
+import { AdminOrderPage } from '@/pages/admin/AdminOrderPage';
+import { AdminStatisticsPage } from '@/pages/admin/AdminStatisticsPage';
+import { AdminUserPage } from '@/pages/admin/AdminUserPage';
+import { AdminVerificationPage } from '@/pages/admin/AdminVerificationPage';
+import { AdminCategoryPage } from '@/pages/admin/AdminCategoryPage';
+import { AdminVehiclePage } from '@/pages/admin/AdminVehiclePage';
+import { AdminDepositPage } from '@/pages/admin/AdminDepositPage';
+import { AdminTransactionPage } from '@/pages/admin/AdminTransactionPage';
+import { AdminNotificationsPage } from '@/pages/admin/AdminNotificationsPage';
 import { BookingPage } from '@/pages/order/BookingPage';
 import { OrderConfirmationPage } from '@/pages/order/OrderConfirmationPage';
 import { OrderDetailPage } from '@/pages/order/OrderDetailPage';
+import { VehicleSearchPage } from '@/pages/vehicles/VehicleSearchPage';
+import { VehicleDetailPage } from '@/pages/vehicles/VehicleDetailPage';
 
-// Admin & KYC Management Imports
 import Settings from '@/pages/settings/Settings'; 
 import UploadKYC from '@/pages/kyc/UploadKYC';
-import { UserManagement } from '@/pages/admin/UserManagement';
-import { KYCApproval } from '@/pages/admin/KYCApproval';
-import { PostManagement } from '@/pages/admin/PostManagement';
-import { TransactionMonitor } from '@/pages/admin/TransactionMonitor';
 
 function App() {
   return (
@@ -56,7 +58,6 @@ function App() {
         <Route path="/wallet" element={<ProtectedRoute><MainLayout><WalletPage /></MainLayout></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><MainLayout><OrderHistoryPage /></MainLayout></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><MainLayout><NotificationPage /></MainLayout></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><MainLayout><Settings /></MainLayout></ProtectedRoute>} />
         <Route path="/kyc" element={<ProtectedRoute><MainLayout><UploadKYC /></MainLayout></ProtectedRoute>} />
         
         {/* Booking & Order Routes */}
@@ -69,14 +70,17 @@ function App() {
           <ProtectedRoute allowRoles={['ADMIN']}>
             <AdminLayout>
               <Routes>
-                <Route index element={<DashboardOverview />} />
-                <Route path="users" element={<UserManagement />} />
-                <Route path="kyc" element={<KYCApproval />} />
-                <Route path="posts" element={<PostManagement />} />
-                <Route path="transactions" element={<TransactionMonitor />} />
-                <Route path="categories" element={<CategoryManagementPage />} />
-                <Route path="vehicles" element={<VehicleManagementPage />} />
-                <Route path="*" element={<DashboardOverview />} />
+                <Route index element={<AdminDashboardPage />} />
+                <Route path="users" element={<AdminUserPage />} />
+                <Route path="verify" element={<AdminVerificationPage />} />
+                <Route path="categories" element={<AdminCategoryPage />} />
+                <Route path="vehicles" element={<AdminVehiclePage />} />
+                <Route path="orders" element={<AdminOrderPage />} />
+                <Route path="deposits" element={<AdminDepositPage />} />
+                <Route path="transactions" element={<AdminTransactionPage />} />
+                <Route path="stats/revenue" element={<AdminStatisticsPage />} />
+                <Route path="notifications" element={<AdminNotificationsPage />} />
+                <Route path="*" element={<AdminDashboardPage />} />
               </Routes>
             </AdminLayout>
           </ProtectedRoute>

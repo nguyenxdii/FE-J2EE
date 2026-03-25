@@ -33,7 +33,12 @@ export function VehicleDetailModal({
   };
 
   const formatMileage = (mileage) => {
-    return new Intl.NumberFormat("en-US").format(mileage);
+    return new Intl.NumberFormat("vi-VN").format(mileage);
+  };
+
+  const deduplicate = (str) => {
+    if (!str) return str;
+    return Array.from(new Set(str.split(',').map(s => s.trim()))).join(', ');
   };
 
   return (
@@ -51,25 +56,9 @@ export function VehicleDetailModal({
             <div className="relative">
               <ImageWithFallback
                 src={car.image}
-                alt={`${car.year} ${car.make} ${car.model}`}
+                alt={`${car.make} ${car.model}`}
                 className="w-full h-64 object-cover rounded-lg"
               />
-              <Badge
-                className="absolute top-2 left-2"
-                variant={
-                  car.condition === "New"
-                    ? "default"
-                    : car.condition === "Certified"
-                      ? "secondary"
-                      : "outline"
-                }
-              >
-                {car.condition === "New"
-                  ? "Mới"
-                  : car.condition === "Used"
-                    ? "Cũ"
-                    : car.condition}
-              </Badge>
               <Button
                 variant="outline"
                 size="icon"
@@ -106,32 +95,32 @@ export function VehicleDetailModal({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-gray-500" />
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Calendar className="w-4 h-4 text-gray-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Năm</p>
-                  <p>{car.year}</p>
+                  <p className="text-sm text-gray-500 font-medium">Số km đã đi</p>
+                  <p className="font-semibold text-gray-900">{formatMileage(car.mileage)} km</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Fuel className="w-4 h-4 text-gray-500" />
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Fuel className="w-4 h-4 text-gray-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Nhiên liệu</p>
-                  <p>{car.fuelType}</p>
+                  <p className="text-sm text-gray-500 font-medium">Nhiên liệu</p>
+                  <p className="font-semibold text-gray-900">{deduplicate(car.fuelType)}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Settings className="w-4 h-4 text-gray-500" />
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Settings className="w-4 h-4 text-gray-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Hộp số</p>
-                  <p>{car.transmission}</p>
+                  <p className="text-sm text-gray-500 font-medium">Hộp số</p>
+                  <p className="font-semibold text-gray-900">{deduplicate(car.transmission)}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-gray-500" />
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <Car className="w-4 h-4 text-gray-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Địa chỉ</p>
-                  <p>{car.location}</p>
+                  <p className="text-sm text-gray-500 font-medium">Dòng xe</p>
+                  <p className="font-semibold text-gray-900">{car.model}</p>
                 </div>
               </div>
             </div>

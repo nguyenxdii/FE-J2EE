@@ -16,47 +16,45 @@ export function VehicleCard({ car, onViewDetails }) {
     return new Intl.NumberFormat('en-US').format(mileage);
   };
 
+  const deduplicate = (str) => {
+    if (!str) return str;
+    return Array.from(new Set(str.split(',').map(s => s.trim()))).join(', ');
+  };
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative aspect-video bg-gray-100 flex items-center justify-center overflow-hidden">
         <ImageWithFallback
           src={car.image}
-          alt={`${car.year} ${car.make} ${car.model}`}
+          alt={`${car.make} ${car.model}`}
           className="w-full h-full object-contain transition-transform duration-500 hover:scale-105"
         />
-        <Badge 
-          className="absolute top-2 left-2" 
-          variant={car.condition === 'New' ? 'default' : car.condition === 'Certified' ? 'secondary' : 'outline'}
-        >
-          {car.condition === 'New' ? 'Mới' : car.condition === 'Used' ? 'Cũ' : car.condition}
-        </Badge>
       </div>
       
       <CardContent className="p-4">
         <h3 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1 mb-2">
-          {car.make} {car.model.replace(/\s\d{4}$/, '')}
+          {car.make} {car.model}
         </h3>
-        <p className="text-2xl mb-3 text-blue-600">
+        <p className="text-2xl mb-3 text-blue-600 font-bold">
           {formatPrice(car.price)}
           <span className="text-sm text-gray-500 font-normal ml-1">/ ngày</span>
         </p>
-        
-        <div className="space-y-2 text-sm text-gray-600">
+        <div className="grid grid-cols-2 gap-y-2 text-[13px] text-gray-600">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            <span>{formatMileage(car.mileage)} miles</span>
+            <Calendar className="w-4 h-4 text-gray-400" />
+            <span className="line-clamp-1">Số km: {formatMileage(car.mileage)} km</span>
           </div>
           <div className="flex items-center gap-2">
-            <Fuel className="w-4 h-4" />
-            <span>{car.fuelType}</span>
+            <Fuel className="w-4 h-4 text-gray-400" />
+            <span className="line-clamp-1">Nhiên liệu: {deduplicate(car.fuelType)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Settings className="w-4 h-4" />
-            <span>{car.transmission}</span>
+            <Settings className="w-4 h-4 text-gray-400" />
+            <span className="line-clamp-1">Hộp số: {deduplicate(car.transmission)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4" />
-            <span>{car.location}</span>
+            <MapPin className="w-4 h-4 text-gray-400" />
+            <span className="truncate">Khu vực: {car.location || 'Hồ Chí Minh'}</span>
           </div>
         </div>
       </CardContent>

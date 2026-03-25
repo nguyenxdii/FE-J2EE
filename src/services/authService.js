@@ -13,8 +13,10 @@ export const authService = {
       const result = await response.json();
       if (result.success) {
         localStorage.setItem('token', result.data.token);
-        localStorage.setItem('user', JSON.stringify(result.data));
-        return { success: true, user: result.data };
+        localStorage.setItem('user', JSON.stringify(result.data.user));
+        return { success: true, user: result.data.user };
+      } else {
+        return { success: false, message: result.message || 'Đăng nhập thất bại' };
       }
       return result;
     } catch (error) {
@@ -49,10 +51,6 @@ export const authService = {
       body: JSON.stringify(userData),
     });
     const result = await response.json();
-    if (result.success) {
-      localStorage.setItem('token', result.data.token);
-      localStorage.setItem('user', JSON.stringify(result.data));
-    }
     return result;
   },
 
@@ -66,7 +64,7 @@ export const authService = {
     const result = await response.json();
     if (result.success) {
       localStorage.setItem('token', result.data.token);
-      localStorage.setItem('user', JSON.stringify(result.data));
+      localStorage.setItem('user', JSON.stringify(result.data.user)); // Sửa: chỉ lưu result.data.user
     }
     return result;
   },
@@ -124,7 +122,7 @@ export const authService = {
   changePassword: async (oldPassword, newPassword) => {
     const token = authService.getToken();
     const response = await fetch(`${BASE_URL}/auth/change-password`, {
-      method: 'PUT',
+      method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}` 

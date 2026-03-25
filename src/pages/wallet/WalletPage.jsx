@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { walletService } from "@/services/walletService";
-import momoLogo from "@/assets/icons/MOMO-Logo-App.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -58,7 +57,11 @@ export function WalletPage() {
         walletService.getTransactionHistory(),
       ]);
 
-      if (balanceRes.success) setBalance(balanceRes.data);
+      if (balanceRes.success) {
+        setBalance(balanceRes.data);
+        // Đồng bộ với Navbar
+        window.dispatchEvent(new Event('balanceUpdate'));
+      }
       if (historyRes.success) setTransactions(historyRes.data);
     } catch (error) {
       toast.error("Không thể tải dữ liệu ví");
@@ -163,15 +166,18 @@ export function WalletPage() {
         <div className="flex gap-2 w-full md:w-auto">
           <Button
             variant="outline"
-            onClick={() => fetchWalletData(true)}
+            onClick={() => {
+              fetchWalletData(true);
+              toast.info("Đang kiểm tra lại các giao dịch...");
+            }}
             disabled={loadingHistory}
             className="h-12 border-gray-200 hover:bg-gray-50 text-gray-600 rounded-xl px-4 flex items-center gap-2"
-            title="Tải lại lịch sử"
+            title="Tải lại lịch sử và cập nhật số dư"
           >
             <RotateCw
               className={`h-5 w-5 ${loadingHistory ? "animate-spin" : ""}`}
             />
-            <span className="font-bold">Làm mới lịch sử</span>
+            <span className="font-bold">Làm mới số dư</span>
           </Button>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -225,22 +231,23 @@ export function WalletPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button
-                  className="w-full h-12 bg-[#D13B63] hover:bg-[#B02A4E] text-white font-bold"
-                  onClick={handleDeposit}
-                  disabled={isDepositLoading}
-                >
-                  {isDepositLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <img
-                      src={momoLogo}
-                      alt="Momo"
-                      className="h-6 mr-2 bg-white rounded p-0.5"
-                    />
-                  )}
-                  Xác nhận nạp tiền
-                </Button>
+                  <Button
+                    className="w-full h-14 bg-[#A50064] hover:bg-[#8e0056] text-white font-bold rounded-2xl shadow-lg shadow-pink-100 transition-all hover:scale-[1.02]"
+                    onClick={handleDeposit}
+                    disabled={isDepositLoading}
+                  >
+                    {isDepositLoading ? (
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    ) : (
+                      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-3">
+                        <rect width="40" height="40" rx="8" fill="white" />
+                        <path d="M20 30C25.5228 30 30 25.5228 30 20C30 14.4772 25.5228 10 20 10C14.4772 10 10 14.4772 10 20C10 25.5228 14.4772 30 20 30Z" fill="#A50064" />
+                        <path d="M20 14.5C16.96 14.5 14.5 16.96 14.5 20C14.5 23.04 16.96 25.5 20 25.5C23.04 25.5 25.5 23.04 25.5 20C25.5 16.96 23.04 14.5 20 14.5ZM20 24.3C17.63 24.3 15.7 22.37 15.7 20C15.7 17.63 17.63 15.7 20 15.7C22.37 15.7 24.3 17.63 24.3 20C24.3 22.37 22.37 24.3 20 24.3Z" fill="white" />
+                        <path d="M22.5 17.5C21.85 17.5 21.3 17.9 20.95 18.5L20 20.3L19.05 18.5C18.7 17.9 18.15 17.5 17.5 17.5C16.67 17.5 16 18.17 16 19V22.5C16 22.78 16.22 23 16.5 23C16.78 23 17 22.78 17 22.5V19.8L19.4 22.5C19.55 22.68 19.78 22.78 20 22.78C20.22 22.78 20.45 22.68 20.6 22.5L23 19.8V22.5C23 22.78 23.22 23 23.5 23C23.78 23 24 22.78 24 22.5V19C24 18.17 23.33 17.5 22.5 17.5Z" fill="white" />
+                      </svg>
+                    )}
+                    Xác nhận nạp tiền qua MoMo
+                  </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

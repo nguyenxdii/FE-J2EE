@@ -17,7 +17,7 @@ import {
 import { Loader2, Edit2, Trash2, Eye, EyeOff, Plus } from 'lucide-react';
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
 
-export function CategoryManagementPage() {
+export function AdminCategoryPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -136,21 +136,21 @@ export function CategoryManagementPage() {
         </h3>
         <div className="grid gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Tên danh mục</label>
+            <label className="text-sm font-black text-gray-500 uppercase tracking-tighter">Tên danh mục *</label>
             <Input 
               placeholder="Ví dụ: Xe tay ga, Xe số..." 
               value={form.name} 
               onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} 
-              className="bg-white"
+              className="h-12 rounded-xl border-2 border-gray-100 focus:border-blue-600"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Mô tả</label>
-            <Input 
-              placeholder="Mô tả ngắn gọn..." 
+            <label className="text-sm font-black text-gray-500 uppercase tracking-tighter">Mô tả danh mục</label>
+            <textarea 
+              placeholder="Nhập mô tả ngắn gọn về danh mục xe này..." 
               value={form.description} 
               onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} 
-              className="bg-white"
+              className="w-full min-h-[100px] p-4 rounded-xl border-2 border-gray-100 focus:border-blue-600 focus:ring-0 transition-all resize-none bg-white font-medium text-gray-700"
             />
           </div>
           <div className="space-y-2">

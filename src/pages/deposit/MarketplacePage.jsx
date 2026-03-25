@@ -21,6 +21,7 @@ import {
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { VehicleDetailModal } from '@/components/shared/VehicleDetailModal';
+import { vehicleService } from '@/services/vehicleService';
 
 export function MarketplacePage() {
   const [listings, setListings] = useState([]);
@@ -129,17 +130,24 @@ export function MarketplacePage() {
                     key={listing.id} 
                     listing={listing} 
                     onBuy={handleOpenBuyDialog} 
-                    onViewDetails={(v) => {
-                      // Map to Home-style car object for modal
-                      setSelectedCar({
-                        ...v,
-                        make: v.brand,
-                        price: v.pricePerDay,
-                        fuelType: v.specs?.fuelType,
-                        transmission: v.specs?.transmission,
-                        image: v.images?.[0],
-                        originalData: v
-                      });
+                    onViewDetails={async (v) => {
+                      try {
+                        const res = await vehicleService.getVehicleById(v.id);
+                        if (res.success) {
+                          const fullVehicle = res.data;
+                          setSelectedCar({
+                            ...fullVehicle,
+                            make: fullVehicle.brand,
+                            price: fullVehicle.pricePerDay,
+                            fuelType: fullVehicle.specs?.fuelType,
+                            transmission: fullVehicle.specs?.transmission,
+                            image: fullVehicle.images?.[0],
+                            originalData: fullVehicle
+                          });
+                        }
+                      } catch (error) {
+                        toast.error('Lỗi khi tải thông tin xe');
+                      }
                     }}
                   />
                 ))}

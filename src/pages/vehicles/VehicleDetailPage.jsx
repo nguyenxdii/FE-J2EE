@@ -6,11 +6,16 @@ import { authService } from '@/services/authService';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, ArrowLeft } from 'lucide-react';
 
 export function VehicleDetailPage() {
   const navigate = useNavigate();
   const { id } = useParams();
+  
+  const deduplicate = (str) => {
+    if (!str) return str;
+    return Array.from(new Set(str.split(',').map(s => s.trim()))).join(', ');
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -122,7 +127,13 @@ export function VehicleDetailPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       {loading || !vehicle ? null : (
         <div className="max-w-6xl mx-auto px-4 space-y-6">
-          <Button variant="ghost" onClick={() => navigate('/vehicles')}>Quay lại tìm kiếm</Button>
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/')} 
+            className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-bold mb-4 p-0"
+          >
+            <ArrowLeft className="w-4 h-4" /> Quay lại trang chủ
+          </Button>
           <Card className="p-6 grid md:grid-cols-2 gap-6">
             <div>
               <div className="relative">
@@ -139,15 +150,20 @@ export function VehicleDetailPage() {
               </div>
             </div>
             <div className="space-y-3">
-              <h1 className="text-3xl font-bold">{vehicle.name.replace(/\s\d{4}$/, '')}</h1>
+              <h1 className="text-3xl font-bold">{vehicle.name}</h1>
               <p className="text-gray-600">{vehicle.brand} - {vehicle.model} - {vehicle.year}</p>
+              <div className="flex items-center gap-4 text-sm font-medium text-gray-500">
+                <span className="flex items-center gap-1"><Star className="w-4 h-4 fill-yellow-400 text-yellow-400" /> {reviewMeta.avgRating}</span>
+                <span>{vehicle.location || 'Hà Nội'}</span>
+                <span>{new Intl.NumberFormat('vi-VN').format(vehicle.mileage || 0)} km</span>
+              </div>
               <p className="text-blue-700 text-2xl font-bold">{new Intl.NumberFormat('vi-VN').format(vehicle.pricePerDay)} đ/ngày</p>
               <p className="text-gray-700">Cọc: {new Intl.NumberFormat('vi-VN').format(vehicle.depositAmount)} đ</p>
               <p className="text-gray-600">{vehicle.description}</p>
-              <div className="pt-2">
-                <p>Nhiên liệu: {vehicle.specs?.fuelType || '-'}</p>
-                <p>Hộp số: {vehicle.specs?.transmission || '-'}</p>
-                <p>Động cơ: {vehicle.specs?.engine || '-'}</p>
+              <div className="pt-2 text-gray-700 font-medium">
+                <p>Nhiên liệu: {deduplicate(vehicle.specs?.fuelType) || '-'}</p>
+                <p>Hộp số: {deduplicate(vehicle.specs?.transmission) || '-'}</p>
+                <p>Dòng xe: {vehicle.model || '-'}</p>
               </div>
               <Button className="w-full" onClick={handleBookNow}>Đặt xe ngay</Button>
             </div>

@@ -20,10 +20,11 @@ import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
 
 const emptyForm = {
   name: '', categoryId: '', brand: '', model: '', year: '', licensePlate: '',
-  pricePerDay: '', depositAmount: '', description: '', fuelType: '', transmission: '', images: [],
+  pricePerDay: '', depositAmount: '', description: '', fuelType: '', transmission: '', 
+  mileage: '', location: 'Hà Nội', images: [],
 };
 
-export function VehicleManagementPage() {
+export function AdminVehiclePage() {
   const [rows, setRows] = useState([]);
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -53,7 +54,7 @@ export function VehicleManagementPage() {
         adminService.getVehicles({ page, size: 10 }),
         vehicleService.getCategories(),
       ]);
-      setRows(v.data || []);
+      setRows(v.data?.content || []);
       setCategories(c);
     } catch {
       toast.error('Không tải được danh sách xe');
@@ -124,6 +125,8 @@ export function VehicleManagementPage() {
       description: v.description || '',
       fuelType: v.specs?.fuelType || '',
       transmission: v.specs?.transmission || '',
+      mileage: v.mileage || '',
+      location: v.location || 'Hà Nội',
     });
     setExistingImages(v.images || []);
     setRemovedImages([]);
@@ -228,6 +231,14 @@ export function VehicleManagementPage() {
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-500 uppercase">Hộp số</label>
             <Input placeholder="Tự động" value={form.transmission} onChange={(e) => setForm((p) => ({ ...p, transmission: e.target.value }))} />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-gray-500 uppercase">Số KM đã đi (Mileage)</label>
+            <Input type="number" placeholder="5000" value={form.mileage} onChange={(e) => setForm((p) => ({ ...p, mileage: e.target.value }))} />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-gray-500 uppercase">Địa điểm (Khu vực)</label>
+            <Input placeholder="Hà Nội" value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} />
           </div>
           <div className="md:col-span-2 space-y-1.5">
             <label className="text-xs font-bold text-gray-500 uppercase">Mô tả chi tiết</label>
