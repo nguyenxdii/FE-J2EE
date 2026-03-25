@@ -21,6 +21,7 @@ import {
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { VehicleDetailModal } from '@/components/shared/VehicleDetailModal';
+import { vehicleService } from '@/services/vehicleService';
 
 export function MarketplacePage() {
   const [listings, setListings] = useState([]);
@@ -29,6 +30,7 @@ export function MarketplacePage() {
   const [isBuyDialogOpen, setIsBuyDialogOpen] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
+  const [agreeCommitment, setAgreeCommitment] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,8 +71,8 @@ export function MarketplacePage() {
           toast.success('Mua suất cọc thành công!');
           setIsBuyDialogOpen(false);
           fetchListings(); // Refresh list
-          // Redirect to my orders to see the new order
-          setTimeout(() => navigate('/my-orders'), 2000);
+          // Redirect to orders to see the new order
+          setTimeout(() => navigate('/orders'), 2000);
         }
       } else {
         toast.error(res.message || 'Giao dịch thất bại');
@@ -128,17 +130,24 @@ export function MarketplacePage() {
                     key={listing.id} 
                     listing={listing} 
                     onBuy={handleOpenBuyDialog} 
-                    onViewDetails={(v) => {
-                      // Map to Home-style car object for modal
-                      setSelectedCar({
-                        ...v,
-                        make: v.brand,
-                        price: v.pricePerDay,
-                        fuelType: v.specs?.fuelType,
-                        transmission: v.specs?.transmission,
-                        image: v.images?.[0],
-                        originalData: v
-                      });
+                    onViewDetails={async (v) => {
+                      try {
+                        const res = await vehicleService.getVehicleById(v.id);
+                        if (res.success) {
+                          const fullVehicle = res.data;
+                          setSelectedCar({
+                            ...fullVehicle,
+                            make: fullVehicle.brand,
+                            price: fullVehicle.pricePerDay,
+                            fuelType: fullVehicle.specs?.fuelType,
+                            transmission: fullVehicle.specs?.transmission,
+                            image: fullVehicle.images?.[0],
+                            originalData: fullVehicle
+                          });
+                        }
+                      } catch (error) {
+                        toast.error('Lỗi khi tải thông tin xe');
+                      }
                     }}
                   />
                 ))}
@@ -177,14 +186,29 @@ export function MarketplacePage() {
               </span>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
+                <input 
+                  type="checkbox" 
+                  id="commit" 
+                  className="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  checked={agreeCommitment}
+                  onChange={(e) => setAgreeCommitment(e.target.checked)}
+                />
+                <label htmlFor="commit" className="text-xs text-gray-600 leading-relaxed cursor-pointer">
+                  Tôi cam kết hiểu rằng <span className="font-bold text-gray-900">suất cọc đã mua không được phép đăng bán lại</span> dưới mọi hình thức.
+                </label>
+              </div>
+
               <p className="text-sm font-bold text-gray-700 ml-1">Chọn phương thức thanh toán:</p>
               <div className="grid grid-cols-1 gap-3">
                 <Button 
                   variant="outline"
-                  className="h-16 justify-between px-6 border-2 border-gray-100 hover:border-blue-500 hover:bg-blue-50/30 rounded-2xl group transition-all"
-                  onClick={() => handleConfirmPurchase('WALLET')}
-                  disabled={isPurchasing}
+                  className={`h-16 justify-between px-6 border-2 rounded-2xl group transition-all ${
+                    !agreeCommitment ? 'opacity-50 cursor-not-allowed grayscale' : 'border-gray-100 hover:border-blue-500 hover:bg-blue-50/30'
+                  }`}
+                  onClick={() => agreeCommitment && handleConfirmPurchase('WALLET')}
+                  disabled={isPurchasing || !agreeCommitment}
                 >
                   <div className="flex items-center">
                     <div className="p-2 bg-blue-100 rounded-xl mr-4 text-blue-600 group-hover:scale-110 transition-transform">
@@ -200,9 +224,11 @@ export function MarketplacePage() {
 
                 <Button 
                   variant="outline"
-                  className="h-16 justify-between px-6 border-2 border-gray-100 hover:border-[#D13B63] hover:bg-[#D13B63]/5 rounded-2xl group transition-all"
-                  onClick={() => handleConfirmPurchase('MOMO')}
-                  disabled={isPurchasing}
+                  className={`h-16 justify-between px-6 border-2 rounded-2xl group transition-all ${
+                    !agreeCommitment ? 'opacity-50 cursor-not-allowed grayscale' : 'border-gray-100 hover:border-[#D13B63] hover:bg-[#D13B63]/5'
+                  }`}
+                  onClick={() => agreeCommitment && handleConfirmPurchase('MOMO')}
+                  disabled={isPurchasing || !agreeCommitment}
                 >
                   <div className="flex items-center">
                     <div className="p-2 bg-[#D13B63]/10 rounded-xl mr-4 text-[#D13B63] group-hover:scale-110 transition-transform">

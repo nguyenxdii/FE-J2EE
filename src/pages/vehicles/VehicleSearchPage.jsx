@@ -33,10 +33,10 @@ export function VehicleSearchPage() {
       model: v.model,
       year: v.year,
       price: v.pricePerDay,
-      mileage: 0,
-      fuelType: v.specs?.fuelType,
-      transmission: v.specs?.transmission,
-      location: 'Hà Nội',
+      mileage: v.mileage || 0,
+      fuelType: v.specs?.fuelType || 'Xăng',
+      transmission: v.specs?.transmission || 'Tự động',
+      location: v.location || 'Hà Nội',
       image: v.images?.[0] || 'https://placehold.co/600x400?text=No+Image',
       condition: v.year >= 2023 ? 'New' : 'Used',
       description: v.description,
@@ -107,6 +107,7 @@ export function VehicleSearchPage() {
   }, [searchParams]);
 
   const handleViewDetails = (car) => {
+    window.scrollTo(0, 0);
     navigate(`/vehicles/${car.id}`);
   };
 
@@ -133,7 +134,7 @@ export function VehicleSearchPage() {
                     <SelectValue placeholder="Chọn loại xe" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tất cả loại</SelectItem>
+                    <SelectItem value="">Tất cả loại xe</SelectItem>
                     {categories.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.name}

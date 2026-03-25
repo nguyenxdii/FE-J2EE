@@ -1,13 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import React from 'react';
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 
-export function HeroSection({ 
-  onSearch,
-  availableMakes = ['Tất cả hãng', 'Honda', 'Yamaha', 'Suzuki', 'VinFast']
-}) {
+export function HeroSection() {
   return (
     <div className="relative h-96 flex items-center justify-center">
       {/* Background Image */}
@@ -22,50 +16,12 @@ export function HeroSection({
 
       {/* Content */}
       <div className="relative z-10 text-center text-white max-w-4xl px-4">
-        <h1 className="text-4xl md:text-6xl mb-4">
+        <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tight">
           Tìm Kiếm Chiếc Xe Hoàn Hảo
         </h1>
-        <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+        <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto opacity-90 font-medium">
           Khám phá hàng nghìn phương tiện chất lượng từ các đối tác tin cậy. Chiếc xe mơ ước chỉ cách bạn một cú nhấp chuột.
         </p>
-
-        {/* Search Form */}
-        <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 max-w-2xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <Input
-                placeholder="Tìm hãng xe, dòng xe hoặc từ khóa..."
-                className="bg-white border-0 text-black"
-                id="search-input"
-              />
-            </div>
-            <div className="w-full md:w-48">
-              <Select defaultValue="all-makes">
-                <SelectTrigger className="bg-white border-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableMakes.map((make) => (
-                    <SelectItem key={make} value={make.toLowerCase().replace(' ', '-')}>
-                      {make}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button 
-              size="lg" 
-              className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => {
-                const searchInput = document.getElementById('search-input');
-                onSearch(searchInput?.value || '', 'all-makes');
-              }}
-            >
-              <Search className="w-4 h-4 mr-2" />
-              Tìm kiếm
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   );

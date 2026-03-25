@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { orderService } from '@/services/orderService';
 import { depositService } from '@/services/depositService';
 import { reviewService } from '@/services/reviewService';
+import { authService } from '@/services/authService';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -57,8 +58,8 @@ export function OrderHistoryPage() {
         depositService.getListings() // Lấy hết và lọc lại ở FE (Hoặc BE nếu có api my-listings)
       ]);
 
-      if (ordersRes.success) setOrders(ordersRes.data);
-      if (listingsRes.success) setListings(listingsRes.data);
+      if (ordersRes.success) setOrders(ordersRes.data || []);
+      if (listingsRes.success) setListings(listingsRes.data || []);
     } catch (error) {
       toast.error('Không thể tải dữ liệu đơn hàng');
     } finally {
@@ -84,18 +85,21 @@ export function OrderHistoryPage() {
   const canPostListing = (order) => {
     const isCorrectStatus = ['CONFIRMED', 'PENDING'].includes(order.status);
     const isFutureOrder = dayjs(order.startDate).isAfter(dayjs().add(24, 'hour'));
-    const isAlreadyListed = listings.some(l => l.order.id === order.id && l.status === 'OPEN');
+    const isAlreadyListed = (listings || []).some(l => l.orderId === order.id && l.status === 'OPEN');
+    // Không cho phép bán lại suất cọc đã mua (F1 ko đc thành F2)
+    const isNotResale = !order.isTransferred;
     
-    return isCorrectStatus && isFutureOrder && !isAlreadyListed;
+    return isCorrectStatus && isFutureOrder && !isAlreadyListed && isNotResale;
   };
 
   const getListingForOrder = (orderId) => {
-    return listings.find(l => l.order.id === orderId && l.status === 'OPEN');
+    return (listings || []).find(l => l.orderId === orderId && l.status === 'OPEN');
   };
 
   const handleOpenPostModal = (order) => {
     setSelectedOrder(order);
-    setSellingPrice(order.depositAmount.toString()); // Mặc định để giá bằng tiền cọc gốc
+    // Mặc định là 60% giá cọc
+    setSellingPrice((order.depositAmount * 0.6).toString());
     setIsPostModalOpen(true);
   };
 
@@ -103,6 +107,12 @@ export function OrderHistoryPage() {
     const price = parseFloat(sellingPrice);
     if (isNaN(price) || price <= 0) {
       toast.error('Giá bán phải lớn hơn 0');
+      return;
+    }
+
+    const maxPrice = selectedOrder.depositAmount * 0.6;
+    if (price > maxPrice) {
+      toast.error(`Giá rao bán không được vượt quá 60% tiền cọc (${formatCurrency(maxPrice)})`);
       return;
     }
 
@@ -124,7 +134,7 @@ export function OrderHistoryPage() {
   };
 
   const handleCancelListing = async (listingId) => {
-    if (!window.confirm('Bạn có chắc chắn muốn hủy bài đăng này?')) return;
+    if (!window.confirm('Bạn có chắc chắn muốn dừng rao bán suất cọc này? (Hành động này không thể hoàn tác)')) return;
     
     try {
       const res = await depositService.cancelListing(listingId);
@@ -179,7 +189,7 @@ export function OrderHistoryPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
-          {orders.length === 0 ? (
+          {(orders || []).length === 0 ? (
             <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-gray-200">
               <Package className="w-20 h-20 text-gray-100 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900">Bạn chưa có đơn hàng nào</h3>
@@ -188,18 +198,20 @@ export function OrderHistoryPage() {
             </div>
           ) : (
             orders.map((order) => {
-              const activeListing = getListingForOrder(order.id);
-              const canPost = canPostListing(order);
+            const isOwner = order.userId === authService.getCurrentUser()?.id;
+            const isTransferredSeller = order.isTransferred && order.originalUserId === authService.getCurrentUser()?.id;
+            const activeListing = getListingForOrder(order.id);
+            const canPost = canPostListing(order);
 
               return (
                 <Card key={order.id} className="overflow-hidden border-none shadow-sm hover:shadow-md transition-shadow bg-white rounded-3xl">
                   <CardContent className="p-6 md:p-8 flex flex-col md:flex-row gap-8">
                     {/* Hình ảnh xe */}
-                    <div className="w-full md:w-56 h-40 rounded-2xl overflow-hidden shrink-0">
+                    <div className="w-full md:w-56 h-40 rounded-2xl overflow-hidden shrink-0 border border-gray-100 bg-gray-50 flex items-center justify-center">
                       <img 
-                        src={order.vehicle.images[0]} 
-                        alt={order.vehicle.model}
-                        className="w-full h-full object-cover"
+                        src={order.vehicleImage} 
+                        alt={order.vehicleName}
+                        className="w-full h-full object-contain"
                       />
                     </div>
 
@@ -209,14 +221,21 @@ export function OrderHistoryPage() {
                         <div>
                           <div className="flex items-center gap-3 mb-1">
                             <h3 className="text-xl font-black text-gray-900 leading-none">
-                              {order.vehicle.brand} {order.vehicle.model}
+                              {order.vehicleBrand} {order.vehicleName}
                             </h3>
                             {getStatusBadge(order.status)}
+                            {isTransferredSeller && (
+                              <Badge className="bg-amber-100 text-amber-700 border-amber-200">
+                                Đã nhượng lại
+                              </Badge>
+                            )}
                           </div>
-                          <p className="text-sm text-gray-400">Mã đơn: <span className="text-gray-600 font-mono font-bold uppercase">{order.id.substring(0, 8)}</span></p>
+                          <p className="text-sm text-gray-400">Mã đơn: <span className="text-gray-600 font-mono font-bold uppercase">{order.orderCode}</span></p>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs text-gray-400 font-bold uppercase">Tiền cọc</p>
+                          <p className="text-xs text-gray-400 font-bold uppercase">
+                            {order.isTransferred ? "Giá đã mua" : "Tiền cọc"}
+                          </p>
                           <p className="text-xl font-black text-blue-700">{formatCurrency(order.depositAmount)}</p>
                         </div>
                       </div>
@@ -258,7 +277,7 @@ export function OrderHistoryPage() {
                               Dừng rao bán
                             </Button>
                           </div>
-                        ) : canPost ? (
+                        ) : canPost && !isTransferredSeller ? (
                           <Button 
                             className="bg-gray-900 hover:bg-black text-white px-8 rounded-xl h-11 font-bold shadow-lg"
                             onClick={() => handleOpenPostModal(order)}
@@ -267,10 +286,10 @@ export function OrderHistoryPage() {
                             Rao bán suất cọc
                             <ArrowRight className="w-4 h-4 ml-6 opacity-40" />
                           </Button>
-                        ) : order.status === 'CONFIRMED' ? (
+                        ) : order.status === 'CONFIRMED' && !isTransferredSeller ? (
                           <div className="flex items-center text-[11px] text-gray-400 bg-gray-50 p-2 rounded-lg italic">
                             <AlertCircle className="w-3.5 h-3.5 mr-2" />
-                            Không thể đăng bán (Chỉ được đăng trước 24h khi khởi hành)
+                            {order.isTransferred ? "Suất cọc mua lại không thể bán lại" : "Không thể đăng bán (Chỉ được đăng trước 24h khi khởi hành)"}
                           </div>
                         ) : null}
                       </div>
@@ -290,7 +309,7 @@ export function OrderHistoryPage() {
             <DialogHeader>
               <DialogTitle className="text-2xl font-black">Rao bán suất cọc</DialogTitle>
               <DialogDescription className="text-blue-100/80 mt-2">
-                Bạn muốn nhượng lại quyền thuê {selectedOrder?.vehicle.model} với giá bao nhiêu?
+                Bạn muốn nhượng lại quyền thuê {selectedOrder?.vehicleName} với giá bao nhiêu?
               </DialogDescription>
             </DialogHeader>
           </div>
@@ -337,15 +356,60 @@ export function OrderHistoryPage() {
       </Dialog>
 
       <Dialog open={reviewModalOpen} onOpenChange={setReviewModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Đánh giá sau thuê</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <Input type="number" min={1} max={5} value={rating} onChange={(e) => setRating(Number(e.target.value))} />
-            <Input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Nhận xét của bạn" />
-            <Button onClick={handleSubmitReview}>Gửi đánh giá</Button>
+        <DialogContent className="sm:max-w-md bg-white rounded-3xl border-none shadow-2xl p-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white text-center">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black">Đánh giá chuyến đi</DialogTitle>
+              <DialogDescription className="text-blue-100/80 mt-2">
+                Trải nghiệm của bạn với chiếc {reviewOrder?.vehicleName} thế nào?
+              </DialogDescription>
+            </DialogHeader>
           </div>
+          
+          <div className="p-8 space-y-6">
+            {/* Star Selector */}
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">Mức độ hài lòng</p>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setRating(s)}
+                    className="transition-transform active:scale-90"
+                  >
+                    <svg 
+                      className={`w-10 h-10 ${s <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-100'} transition-colors`}
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+              <p className="text-lg font-black text-gray-900 mt-1">
+                {rating === 5 ? "Tuyệt vời!" : rating === 4 ? "Rất tốt" : rating === 3 ? "Bình thường" : rating === 2 ? "Không hài lòng" : "Tệ"}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700 ml-1">Nhận xét của bạn</label>
+              <textarea 
+                className="w-full h-32 p-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none resize-none transition-all placeholder:text-gray-300"
+                placeholder="Chia sẻ thêm về tình trạng xe, chủ xe hoặc trải nghiệm của bạn..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="p-8 pt-0 pb-10">
+            <Button 
+              className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-200 transition-all active:scale-95"
+              onClick={handleSubmitReview}
+            >
+              Gửi đánh giá ngay
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail, Lock, User, Phone, Loader2, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, Phone, Loader2, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { authService } from '@/services/authService';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
@@ -16,16 +16,23 @@ export function RegisterPage() {
     password: '',
     confirmPassword: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [step, setStep] = useState(1); // 1: Form, 2: OTP
+  const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleRegister = async (e) => {
+  const handleSendOtp = async (e) => {
     e.preventDefault();
-    
     if (formData.password !== formData.confirmPassword) {
       return toast.error("Mật khẩu xác nhận không khớp");
     }
@@ -33,16 +40,34 @@ export function RegisterPage() {
     setIsLoading(true);
     try {
       const { fullName, email, phone, password } = formData;
-      const response = await authService.register({ fullName, email, phone, password });
+      const response = await authService.sendOtp({ fullName, email, phone, password });
       
       if (response.success) {
-        toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
-        navigate('/login');
+        toast.success(response.message || "Mã OTP đã được gửi đến email của bạn");
+        setStep(2);
       } else {
-        toast.error(response.message || "Đăng ký thất bại");
+        toast.error(response.message || "Không thể gửi OTP");
       }
     } catch (error) {
-      toast.error(error.message || "Có lỗi xảy ra, vui lòng thử lại");
+      toast.error("Có lỗi xảy ra, vui lòng thử lại");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const response = await authService.verifyOtp(formData, otp);
+      if (response.success) {
+        toast.success("Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.");
+        navigate('/login');
+      } else {
+        toast.error(response.message || "Mã OTP không đúng");
+      }
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi xác thực");
     } finally {
       setIsLoading(false);
     }
@@ -54,109 +79,175 @@ export function RegisterPage() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 xl:p-24 relative overflow-y-auto">
         <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 my-auto">
           <div className="text-center md:text-left">
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Tạo tài khoản mới</h1>
-            <p className="mt-2 text-base text-gray-600">Điền thông tin bên dưới để trở thành thành viên của ShopCar.</p>
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+              {step === 1 ? "Tạo tài khoản mới" : "Xác nhận thực email"}
+            </h1>
+            <p className="mt-2 text-base text-gray-600">
+              {step === 1 
+                ? "Điền thông tin bên dưới để trở thành thành viên của ShopCar."
+                : `Chúng tôi đã gửi mã OTP 6 số đến ${formData.email}.`}
+            </p>
           </div>
 
-          <form onSubmit={handleRegister} className="space-y-5 mt-8">
-            <div className="space-y-2 relative">
-              <Label htmlFor="fullName">Họ và tên</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-                <Input 
-                  id="fullName" 
-                  placeholder="Nguyễn Văn An" 
-                  className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
-                  required
-                  value={formData.fullName}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {step === 1 ? (
+            <form onSubmit={handleSendOtp} className="space-y-5 mt-8">
               <div className="space-y-2 relative">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="fullName">Họ và tên</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  <User className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
                   <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="name@example.com" 
+                    id="fullName" 
+                    placeholder="Nguyễn Văn An" 
                     className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
-                    required 
-                    value={formData.email}
+                    required
+                    value={formData.fullName}
                     onChange={handleChange}
                   />
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2 relative">
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="name@example.com" 
+                      className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                      required 
+                      value={formData.email}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 relative">
+                  <Label htmlFor="phone">Số điện thoại</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                    <Input 
+                      id="phone" 
+                      placeholder="0912345xxx" 
+                      className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                      required 
+                      value={formData.phone}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-2 relative">
-                <Label htmlFor="phone">Số điện thoại</Label>
+                <Label htmlFor="password">Mật khẩu</Label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
                   <Input 
-                    id="phone" 
-                    placeholder="0912345xxx" 
-                    className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                    id="password" 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="••••••••" 
+                    className="pl-11 pr-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
                     required 
-                    value={formData.phone}
+                    value={formData.password}
                     onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2 relative">
+                <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  <Input 
+                    id="confirmPassword" 
+                    type={showConfirmPassword ? "text" : "password"} 
+                    placeholder="••••••••" 
+                    className="pl-11 pr-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                    required 
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full h-12 mt-2 text-base font-semibold bg-gray-900 hover:bg-black text-white shadow-lg transition-all"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Đang gửi OTP...
+                  </>
+                ) : (
+                  <>
+                    Tiếp tục
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </>
+                )}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-5 mt-8">
+              <div className="space-y-2 relative">
+                <Label htmlFor="otp">Mã xác thực (6 số)</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  <Input 
+                    id="otp" 
+                    placeholder="123456" 
+                    className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors text-center text-2xl tracking-[1em]"
+                    required
+                    maxLength={6}
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
                   />
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-2 relative">
-              <Label htmlFor="password">Mật khẩu</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-                <Input 
-                  id="password" 
-                  type="password" 
-                  placeholder="••••••••" 
-                  className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
-                  required 
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
+              <Button 
+                type="submit" 
+                className="w-full h-12 mt-2 text-base font-semibold bg-gray-900 hover:bg-black text-white shadow-lg transition-all"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Đang xác thực...
+                  </>
+                ) : (
+                  <>
+                    Xác nhận đăng ký
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </>
+                )}
+              </Button>
 
-            <div className="space-y-2 relative">
-              <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-                <Input 
-                  id="confirmPassword" 
-                  type="password" 
-                  placeholder="••••••••" 
-                  className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
-                  required 
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full h-12 mt-2 text-base font-semibold bg-gray-900 hover:bg-black text-white shadow-lg transition-all"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Đang xử lý...
-                </>
-              ) : (
-                <>
-                  Đăng ký tài khoản
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </>
-              )}
-            </Button>
-          </form>
+              <button 
+                type="button"
+                onClick={() => setStep(1)}
+                className="w-full text-center text-sm text-gray-500 hover:text-gray-900 mt-2"
+              >
+                Quay lại sửa thông tin
+              </button>
+            </form>
+          )}
 
           <p className="text-center text-sm text-gray-600 pt-2">
             Đã có tài khoản?{' '}
