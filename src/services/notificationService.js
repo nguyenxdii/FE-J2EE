@@ -1,34 +1,21 @@
-const BASE_URL = 'http://127.0.0.1:8080/api/notifications';
-
-const getHeaders = () => ({
-  'Content-Type': 'application/json',
-  'Authorization': `Bearer ${localStorage.getItem('token')}`
-});
+import api from './api';
 
 export const notificationService = {
-  // Lấy danh sách thông báo của người dùng
-  getMyNotifications: async () => {
-    const response = await fetch(BASE_URL, {
-      headers: getHeaders()
-    });
-    return response.json();
+  // Lấy danh sách thông báo
+  getNotifications: async () => {
+    const response = await api.get('/notifications');
+    return response;
   },
 
-  // Đánh dấu đã đọc
+  // Đánh dấu 1 thông báo là đã đọc
   markAsRead: async (id) => {
-    const response = await fetch(`${BASE_URL}/${id}/read`, {
-      method: 'PUT',
-      headers: getHeaders()
-    });
-    return response.json();
+    const response = await api.put(`/notifications/${id}/read`);
+    return response;
   },
 
-  // Đánh dấu tất cả đã đọc
+  // Đánh dấu tất cả là đã đọc
   markAllAsRead: async () => {
-    const response = await fetch(`${BASE_URL}/read-all`, {
-      method: 'PUT',
-      headers: getHeaders()
-    });
-    return response.json();
+    const response = await api.put('/notifications/read-all');
+    return response;
   }
 };

@@ -16,8 +16,8 @@ export const authService = {
       if (result.success) {
         // Saveto local storage
         localStorage.setItem('token', result.data.token);
-        localStorage.setItem('user', JSON.stringify(result.data));
-        return { success: true, user: result.data };
+        localStorage.setItem('user', JSON.stringify(result.data.user));
+        return { success: true, user: result.data.user };
       } else {
         return { success: false, message: result.message || 'Đăng nhập thất bại' };
       }

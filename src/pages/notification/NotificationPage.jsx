@@ -28,9 +28,9 @@ export function NotificationPage() {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const res = await notificationService.getMyNotifications();
-      if (res.success) {
-        setNotifications(res.data);
+      const res = await notificationService.getNotifications();
+      if (res?.success) {
+        setNotifications(res.data?.notifications || []);
       }
     } catch (error) {
       toast.error('Không thể tải thông báo');
