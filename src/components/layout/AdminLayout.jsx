@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -17,10 +17,28 @@ import {
   Bell
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { authService } from '@/services/authService';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [isLogoutOpen, setIsLogoutOpen] = React.useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/login');
+  };
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Tổng quan', path: '/dashboard/admin' },
@@ -76,7 +94,11 @@ export function AdminLayout({ children }) {
         </nav>
 
         <div className="p-4 border-t border-gray-100">
-          <Button variant="ghost" className="w-full justify-start gap-3 text-gray-600 hover:text-red-600 hover:bg-red-50">
+          <Button 
+            variant="ghost" 
+            onClick={() => setIsLogoutOpen(true)}
+            className="w-full justify-start gap-3 text-gray-600 hover:text-red-600 hover:bg-red-50"
+          >
             <LogOut className="w-5 h-5" />
             {isSidebarOpen && <span>Đăng xuất</span>}
           </Button>
@@ -124,6 +146,23 @@ export function AdminLayout({ children }) {
           </div>
         </main>
       </div>
+
+      <AlertDialog open={isLogoutOpen} onOpenChange={setIsLogoutOpen}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận đăng xuất</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn đăng xuất khỏi hệ thống quản trị không?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={handleLogout} className="bg-red-600 hover:bg-red-700 text-white">
+              Đăng xuất
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

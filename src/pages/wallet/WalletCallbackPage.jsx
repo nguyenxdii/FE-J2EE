@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { CheckCircle2, XCircle, Loader2, ArrowLeft, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,7 +28,11 @@ export function WalletCallbackPage() {
         }
       } catch (err) {
         console.error('Lỗi khi confirm giao dịch:', err);
-        setStatus(resultCode === '0' ? 'success' : 'error');
+        if (resultCode === '0') {
+          setStatus('success');
+        } else {
+          setStatus('error');
+        }
       }
     };
 

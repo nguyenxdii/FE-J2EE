@@ -16,11 +16,11 @@ export function ListingCard({ listing, onBuy, onViewDetails }) {
 
   return (
     <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-none shadow-lg bg-white group">
-      <div className="relative h-48 overflow-hidden">
+      <div className="relative h-48 overflow-hidden bg-gray-50 flex items-center justify-center">
         <ImageWithFallback
-          src={listing.order?.vehicle?.images?.[0]}
-          alt={listing.order?.vehicle?.model || 'Car'}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          src={listing.vehicleImage}
+          alt={listing.vehicleName || 'Car'}
+          className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute top-3 right-3">
           <Badge className="bg-blue-600/90 backdrop-blur-md text-white border-none px-3 py-1">
@@ -30,7 +30,7 @@ export function ListingCard({ listing, onBuy, onViewDetails }) {
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
           <p className="text-white text-xs font-medium flex items-center">
             <User className="w-3 h-3 mr-1" />
-            Người bán: {listing.seller?.fullName || 'Người dùng ShopCar'}
+            Người bán: {listing.sellerFullName || 'Người dùng ShopCar'}
           </p>
         </div>
       </div>
@@ -38,7 +38,7 @@ export function ListingCard({ listing, onBuy, onViewDetails }) {
       <CardContent className="p-5 space-y-4">
         <div>
           <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
-            {listing.order?.vehicle?.year} {listing.order?.vehicle?.brand} {listing.order?.vehicle?.model}
+            {listing.vehicleBrand} {listing.vehicleName}
           </h3>
           <div className="flex items-center text-xs text-gray-400 mt-1">
             <Calendar className="w-3 h-3 mr-1" />
@@ -75,7 +75,7 @@ export function ListingCard({ listing, onBuy, onViewDetails }) {
         <Button 
           variant="outline"
           className="flex-1 border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl"
-          onClick={() => onViewDetails && onViewDetails(listing.order?.vehicle)}
+          onClick={() => onViewDetails && onViewDetails({ id: listing.vehicleId, brand: listing.vehicleBrand, name: listing.vehicleName })}
         >
           <Info className="w-4 h-4 mr-2" />
           Chi tiết xe

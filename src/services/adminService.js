@@ -33,9 +33,17 @@ export const adminService = {
 
   deleteCategory: async (id) => {
     const res = await fetch(`${BASE_URL}/categories/${id}`, { method: 'DELETE', headers: authHeader() });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Delete category failed');
-    return data;
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.message || 'Xóa danh mục thất bại');
+    }
+    return res.json();
+  },
+  
+  toggleHideCategory: async (id) => {
+    const res = await fetch(`${BASE_URL}/categories/${id}/toggle-hide`, { method: 'PATCH', headers: authHeader() });
+    if (!res.ok) throw new Error('Toggle hide category failed');
+    return res.json();
   },
 
   getVehicles: async (params = {}) => {
@@ -70,9 +78,9 @@ export const adminService = {
     return res.json();
   },
 
-  hideVehicle: async (id) => {
-    const res = await fetch(`${BASE_URL}/admin/vehicles/${id}/hide`, { method: 'PATCH', headers: authHeader() });
-    if (!res.ok) throw new Error('Hide vehicle failed');
+  toggleVehicleVisibility: async (id) => {
+    const res = await fetch(`${BASE_URL}/admin/vehicles/${id}/toggle-visibility`, { method: 'PATCH', headers: authHeader() });
+    if (!res.ok) throw new Error('Toggle vehicle visibility failed');
     return res.json();
   },
 

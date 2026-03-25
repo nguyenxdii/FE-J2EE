@@ -17,8 +17,9 @@ export function HomePage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
+    categoryId: '',
     make: 'Tất cả hãng',
-    priceRange: [0, 2000000], // Adjusted for VND
+    priceRange: [0, 2000000], 
     year: 'Tất cả năm',
     fuelType: 'Tất cả loại nhiên liệu',
     transmission: 'Tất cả hộp số',
@@ -30,7 +31,7 @@ export function HomePage() {
       try {
         setLoading(true);
         const [vData, cData] = await Promise.all([
-          vehicleService.getFeaturedVehicles(),
+          vehicleService.getVehicles(),
           vehicleService.getCategories()
         ]);
         setVehicles(vData);
@@ -48,17 +49,18 @@ export function HomePage() {
     return vehicles.map(v => ({
       id: v.id,
       make: v.brand,
-      model: v.model,
+      model: v.model.replace(/\s\d{4}$/, ''),
       year: v.year,
       price: v.pricePerDay,
-      mileage: 0, // Not in backend
-      fuelType: v.specs.fuelType,
-      transmission: v.specs.transmission,
-      location: 'Hà Nội', // Default location
-      image: v.images[0] || 'https://placehold.co/600x400?text=No+Image',
-      condition: v.year >= 2023 ? 'New' : 'Used',
+      mileage: 0, 
+      fuelType: v.specs?.fuelType || 'Xăng',
+      transmission: v.specs?.transmission || 'Tự động',
+      location: 'Hà Nội', 
+      image: (v.images && v.images.length > 0) ? v.images[0] : 'https://placehold.co/600x400?text=No+Image',
+      condition: v.year >= 2023 ? 'Mới' : 'Đã sử dụng',
+      categoryId: v.categoryId, 
       description: v.description,
-      originalData: v // Keep original for modal
+      originalData: v
     }));
   }, [vehicles]);
 
@@ -74,31 +76,20 @@ export function HomePage() {
 
   const filteredCars = useMemo(() => {
     return mappedVehicles.filter((car) => {
-      // Search term filter
       const searchMatch = searchTerm === '' || 
         car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
         car.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
         `${car.year}`.includes(searchTerm);
 
-      // Make filter
       const makeMatch = filters.make === 'Tất cả hãng' || car.make === filters.make;
-
-      // Price range filter
       const priceMatch = car.price >= filters.priceRange[0] && car.price <= filters.priceRange[1];
-
-      // Year filter
       const yearMatch = filters.year === 'Tất cả năm' || car.year.toString() === filters.year;
-
-      // Fuel type filter
       const fuelMatch = filters.fuelType === 'Tất cả loại nhiên liệu' || car.fuelType === filters.fuelType;
-
-      // Transmission filter
       const transmissionMatch = filters.transmission === 'Tất cả hộp số' || car.transmission === filters.transmission;
-
-      // Condition filter
       const conditionMatch = filters.condition === 'Tất cả tình trạng' || car.condition === filters.condition;
+      const categoryMatch = filters.categoryId === '' || car.categoryId === filters.categoryId;
 
-      return searchMatch && makeMatch && priceMatch && yearMatch && fuelMatch && transmissionMatch && conditionMatch;
+      return searchMatch && makeMatch && priceMatch && yearMatch && fuelMatch && transmissionMatch && conditionMatch && categoryMatch;
     });
   }, [searchTerm, filters, mappedVehicles]);
 
@@ -112,6 +103,7 @@ export function HomePage() {
 
   const clearFilters = () => {
     setFilters({
+      categoryId: '',
       make: 'Tất cả hãng',
       priceRange: [0, 2000000],
       year: 'Tất cả năm',
@@ -125,24 +117,6 @@ export function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <HeroSection onSearch={handleSearch} availableMakes={availableMakes} />
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 w-full">
-        <div className="rounded-3xl bg-gradient-to-r from-sky-600 to-indigo-700 text-white p-8">
-          <h2 className="text-2xl font-bold">Thuê xe nhanh trong 1 phút</h2>
-          <p className="text-white/90 mt-2">Chọn danh mục bên dưới để vào trang tìm kiếm đã lọc sẵn.</p>
-          <div className="flex flex-wrap gap-3 mt-4">
-            {categories.map((cat) => (
-              <Button
-                key={cat.id}
-                variant="secondary"
-                onClick={() => navigate(`/vehicles?categoryId=${cat.id}`)}
-              >
-                {cat.name}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
-      
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Filters Sidebar */}
@@ -151,6 +125,7 @@ export function HomePage() {
               filters={filters}
               onFiltersChange={setFilters}
               onClearFilters={clearFilters}
+              categories={categories}
               availableMakes={availableMakes}
               availableYears={availableYears}
             />
@@ -158,12 +133,11 @@ export function HomePage() {
 
           {/* Main Content */}
           <div className="lg:col-span-4">
-            {/* Search and Results Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">Xe đang có sẵn</h2>
                 <p className="text-gray-600">
-                  Tìm thấy {filteredCars.length} xe
+                  Tìm thấy {filteredCars.length} chiếc xe
                 </p>
               </div>
               
@@ -172,22 +146,20 @@ export function HomePage() {
                   placeholder="Tìm kiếm xe..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full sm:w-64"
+                  className="w-full sm:w-64 h-11 rounded-xl"
                 />
-                <Button variant="outline">
+                <Button variant="outline" className="h-11 w-11 p-0 rounded-xl">
                   <Search className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
-            {/* Loading State */}
             {loading ? (
               <div className="flex justify-center items-center py-20">
                 <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
               </div>
             ) : (
               <>
-                {/* Cars Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
                   {filteredCars.map((car) => (
                     <VehicleCard
@@ -198,13 +170,12 @@ export function HomePage() {
                   ))}
                 </div>
 
-                {/* No Results */}
                 {filteredCars.length === 0 && (
                   <div className="text-center py-12">
                     <p className="text-gray-500 text-lg mb-4">
-                      Không tìm thấy xe nào khớp với yêu cầu của bạn
+                      Không tìm thấy xe nào khớp với yêu cầu
                     </p>
-                    <Button onClick={clearFilters} variant="outline">
+                    <Button onClick={clearFilters} variant="outline" className="rounded-xl">
                       Xóa tất cả bộ lọc
                     </Button>
                   </div>
@@ -215,7 +186,6 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* Car Details Modal */}
       <VehicleDetailModal car={selectedCar} isOpen={false} onClose={() => setSelectedCar(null)} />
     </div>
   );

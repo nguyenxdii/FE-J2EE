@@ -120,7 +120,7 @@ export function OrderConfirmationPage() {
               />
               <div className="space-y-1">
                 <Badge variant="outline" className="bg-white">{vehicle.brand}</Badge>
-                <h3 className="text-xl font-bold text-gray-900">{vehicle.name}</h3>
+                <h3 className="text-xl font-bold text-gray-900">{vehicle.name.replace(/\s\d{4}$/, '')}</h3>
                 <div className="flex items-center text-sm text-gray-500">
                   <MapPin className="w-3.5 h-3.5 mr-1" />
                   {vehicle.location || 'Hà Nội'}

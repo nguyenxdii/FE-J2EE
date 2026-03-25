@@ -23,7 +23,7 @@ import { toast } from 'sonner';
 import dayjs from 'dayjs';
 
 export function OrderDetailPage() {
-  const { id } = useParams();
+  const { orderId: id } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -122,7 +122,7 @@ export function OrderDetailPage() {
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-8">
       <button 
-        onClick={() => navigate('/my-orders')}
+        onClick={() => navigate('/orders')}
         className="flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
       >
         <ChevronLeft className="w-4 h-4 mr-1" />

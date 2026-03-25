@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -9,12 +8,11 @@ export function VehicleFilters({
   filters, 
   onFiltersChange, 
   onClearFilters,
+  categories = [],
   availableMakes = ['Tất cả hãng', 'Honda', 'Yamaha', 'Suzuki', 'VinFast'],
   availableYears = ['Tất cả năm', '2024', '2023', '2022', '2021', '2020']
 }) {
   const fuelTypes = ['Tất cả loại nhiên liệu', 'Xăng', 'Điện'];
-  const transmissions = ['Tất cả hộp số', 'Số', 'Tay ga', 'Côn tay'];
-  const conditions = ['Tất cả tình trạng', 'Mới', 'Cũ'];
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -24,18 +22,36 @@ export function VehicleFilters({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Bộ lọc tìm kiếm</CardTitle>
+    <Card className="border-none shadow-sm bg-white rounded-2xl overflow-hidden">
+      <CardHeader className="pb-3 pt-6 px-6">
+        <CardTitle className="text-lg font-bold text-gray-900 border-l-4 border-blue-600 pl-3">Bộ lọc tìm kiếm</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <Label htmlFor="make">Hãng xe</Label>
+      <CardContent className="px-6 pb-6 space-y-5">
+        <div className="space-y-2">
+          <Label htmlFor="category" className="text-xs font-black text-black uppercase tracking-widest pl-1">Loại xe</Label>
+          <Select 
+            value={filters.categoryId || "all"} 
+            onValueChange={(value) => onFiltersChange({ ...filters, categoryId: value === "all" ? "" : value })}
+          >
+            <SelectTrigger className="h-11 rounded-xl bg-gray-50 border-none">
+              <SelectValue placeholder="Chọn loại xe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả loại xe</SelectItem>
+              {categories.map((c) => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="make" className="text-xs font-black text-black uppercase tracking-widest pl-1">Hãng xe</Label>
           <Select 
             value={filters.make} 
             onValueChange={(value) => onFiltersChange({ ...filters, make: value })}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-11 rounded-xl bg-gray-50 border-none">
               <SelectValue placeholder="Chọn hãng xe" />
             </SelectTrigger>
             <SelectContent>
@@ -46,31 +62,31 @@ export function VehicleFilters({
           </Select>
         </div>
 
-        <div>
-          <Label>Khoảng giá (mỗi ngày)</Label>
-          <div className="px-2 py-4">
+        <div className="space-y-2">
+          <Label className="text-xs font-black text-black uppercase tracking-widest pl-1">Giá / ngày</Label>
+          <div className="px-2 pt-1 font-bold">
             <Slider
               value={filters.priceRange}
               onValueChange={(value) => onFiltersChange({ ...filters, priceRange: value })}
-              max={1000000}
+              max={2000000}
               min={0}
               step={10000}
               className="w-full"
             />
           </div>
-          <div className="flex justify-between text-sm text-gray-600">
+          <div className="flex justify-between text-[10px] font-bold text-black">
             <span>{formatPrice(filters.priceRange[0])}</span>
             <span>{formatPrice(filters.priceRange[1])}</span>
           </div>
         </div>
 
-        <div>
-          <Label htmlFor="year">Năm sản xuất</Label>
+        <div className="space-y-2">
+          <Label htmlFor="year" className="text-xs font-black text-black uppercase tracking-widest pl-1">Năm sản xuất</Label>
           <Select 
             value={filters.year} 
             onValueChange={(value) => onFiltersChange({ ...filters, year: value })}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-11 rounded-xl bg-gray-50 border-none">
               <SelectValue placeholder="Chọn năm" />
             </SelectTrigger>
             <SelectContent>
@@ -81,13 +97,13 @@ export function VehicleFilters({
           </Select>
         </div>
 
-        <div>
-          <Label htmlFor="fuel">Loại nhiên liệu</Label>
+        <div className="space-y-2">
+           <Label htmlFor="fuel" className="text-xs font-black text-black uppercase tracking-widest pl-1">Nhiên liệu</Label>
           <Select 
             value={filters.fuelType} 
             onValueChange={(value) => onFiltersChange({ ...filters, fuelType: value })}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-11 rounded-xl bg-gray-50 border-none">
               <SelectValue placeholder="Chọn nhiên liệu" />
             </SelectTrigger>
             <SelectContent>
@@ -98,41 +114,11 @@ export function VehicleFilters({
           </Select>
         </div>
 
-        <div>
-          <Label htmlFor="transmission">Hộp số</Label>
-          <Select 
-            value={filters.transmission} 
-            onValueChange={(value) => onFiltersChange({ ...filters, transmission: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn hộp số" />
-            </SelectTrigger>
-            <SelectContent>
-              {transmissions.map((transmission) => (
-                <SelectItem key={transmission} value={transmission}>{transmission}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label htmlFor="condition">Tình trạng</Label>
-          <Select 
-            value={filters.condition} 
-            onValueChange={(value) => onFiltersChange({ ...filters, condition: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn tình trạng" />
-            </SelectTrigger>
-            <SelectContent>
-              {conditions.map((condition) => (
-                <SelectItem key={condition} value={condition}>{condition}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Button onClick={onClearFilters} variant="outline" className="w-full">
+        <Button 
+            onClick={onClearFilters} 
+            variant="outline" 
+            className="w-full h-11 border-black text-black hover:bg-gray-100 font-bold rounded-xl transition-all mt-4"
+        >
           Xóa tất cả bộ lọc
         </Button>
       </CardContent>

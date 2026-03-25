@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { vehicleService } from '@/services/vehicleService';
+import { orderService } from '@/services/orderService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,7 +13,8 @@ import {
   Info, 
   Loader2, 
   ShieldCheck,
-  AlertTriangle 
+  AlertTriangle,
+  Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
 import dayjs from 'dayjs';
@@ -82,6 +84,24 @@ export function BookingPage() {
 
     if (dayjs(startDate).isBefore(dayjs(), 'day')) {
       toast.error('Ngày nhận xe không được trong quá khứ');
+      return;
+    }
+
+    // Kiểm tra trùng lịch
+    const hasOverlap = bookedOrders.some(order => {
+      if (order.status === 'CANCELLED') return false;
+      const bookedStart = dayjs(order.startDate);
+      const bookedEnd = dayjs(order.endDate);
+      const start = dayjs(startDate);
+      const end = dayjs(endDate);
+      
+      // Check overlap: [start, end] overlaps with [bookedStart, bookedEnd]
+      return (start.isBefore(bookedEnd) || start.isSame(bookedEnd)) && 
+             (end.isAfter(bookedStart) || end.isSame(bookedStart));
+    });
+
+    if (hasOverlap) {
+      toast.error('Khoản thời gian trên đã có người đặt');
       return;
     }
 
@@ -202,7 +222,7 @@ export function BookingPage() {
               <div>
                 <Badge variant="secondary" className="mb-2">{vehicle?.brand}</Badge>
                 <h3 className="text-xl font-black text-gray-900 leading-tight">
-                  {vehicle?.name}
+                  {vehicle?.name.replace(/\s\d{4}$/, '')}
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">{vehicle?.licensePlate}</p>
               </div>

@@ -12,6 +12,10 @@ export function VehicleDetailPage() {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [vehicle, setVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [imageIndex, setImageIndex] = useState(0);
@@ -68,16 +72,41 @@ export function VehicleDetailPage() {
   const canPrev = imageIndex > 0;
   const canNext = imageIndex < images.length - 1;
 
-  const handleBookNow = () => {
+  const handleBookNow = async () => {
     if (!authService.isAuthenticated()) {
       navigate('/login', { state: { from: `/vehicles/${id}` } });
       return;
     }
-    const user = authService.getCurrentUser();
-    if (user?.identity?.verifyStatus !== 'VERIFIED') {
-      toast.warning('Bạn cần xác minh CCCD trước khi đặt xe');
-      return;
+
+    // Luôn fetch profile mới nhất để tránh dữ liệu stale trong localStorage
+    try {
+      const profileResult = await authService.getProfile();
+      if (profileResult.success) {
+        const updatedUser = profileResult.data;
+        // Cập nhật localStorage
+        const currentUser = authService.getCurrentUser();
+        localStorage.setItem('user', JSON.stringify({ ...currentUser, ...updatedUser }));
+        
+        if (updatedUser.identity?.verifyStatus !== 'VERIFIED') {
+          toast.warning('Bạn cần xác minh CCCD trước khi đặt xe');
+          return;
+        }
+      } else {
+        // Nếu fetch profile lỗi, fallback về check localStorage
+        const user = authService.getCurrentUser();
+        if (user?.identity?.verifyStatus !== 'VERIFIED') {
+          toast.warning('Bạn cần xác minh CCCD trước khi đặt xe');
+          return;
+        }
+      }
+    } catch (error) {
+       const user = authService.getCurrentUser();
+        if (user?.identity?.verifyStatus !== 'VERIFIED') {
+          toast.warning('Bạn cần xác minh CCCD trước khi đặt xe');
+          return;
+        }
     }
+
     navigate(`/booking/${id}`);
   };
 
@@ -110,7 +139,7 @@ export function VehicleDetailPage() {
               </div>
             </div>
             <div className="space-y-3">
-              <h1 className="text-3xl font-bold">{vehicle.name}</h1>
+              <h1 className="text-3xl font-bold">{vehicle.name.replace(/\s\d{4}$/, '')}</h1>
               <p className="text-gray-600">{vehicle.brand} - {vehicle.model} - {vehicle.year}</p>
               <p className="text-blue-700 text-2xl font-bold">{new Intl.NumberFormat('vi-VN').format(vehicle.pricePerDay)} đ/ngày</p>
               <p className="text-gray-700">Cọc: {new Intl.NumberFormat('vi-VN').format(vehicle.depositAmount)} đ</p>

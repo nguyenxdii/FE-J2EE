@@ -107,6 +107,7 @@ export function VehicleSearchPage() {
   }, [searchParams]);
 
   const handleViewDetails = (car) => {
+    window.scrollTo(0, 0);
     navigate(`/vehicles/${car.id}`);
   };
 
@@ -133,7 +134,7 @@ export function VehicleSearchPage() {
                     <SelectValue placeholder="Chọn loại xe" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tất cả loại</SelectItem>
+                    <SelectItem value="">Tất cả loại xe</SelectItem>
                     {categories.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.name}

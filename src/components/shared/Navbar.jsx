@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import defaultAvatar from "@/assets/images/avatar.png";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -110,7 +111,7 @@ export function Navbar() {
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                         <Avatar className="h-10 w-10 border border-gray-200">
-                          <AvatarImage src="" alt={user.fullName} />
+                          <AvatarImage src={(user.avatar && user.avatar !== "") ? user.avatar : defaultAvatar} alt={user.fullName} />
                           <AvatarFallback className="bg-blue-50 text-blue-700 font-semibold">
                             {getInitials(user.fullName)}
                           </AvatarFallback>
@@ -126,7 +127,13 @@ export function Navbar() {
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link to="/my-orders" className="cursor-pointer w-full flex items-center text-gray-700 py-2">
+                        <Link to="/profile" className="cursor-pointer w-full flex items-center text-gray-700 py-2">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Hồ sơ cá nhân</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/orders" className="cursor-pointer w-full flex items-center text-gray-700 py-2">
                           <ShoppingCart className="mr-2 h-4 w-4" />
                           <span>Đơn của tôi</span>
                         </Link>
@@ -141,12 +148,6 @@ export function Navbar() {
                         <Link to="/notifications" className="cursor-pointer w-full flex items-center text-gray-700 py-2">
                           <Bell className="mr-2 h-4 w-4" />
                           <span>Thông báo</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/settings" className="cursor-pointer w-full flex items-center text-gray-700 py-2">
-                          <Settings className="mr-2 h-4 w-4" />
-                          <span>Cài đặt</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
